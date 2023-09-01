@@ -210,7 +210,8 @@ class World():
 
 	def update(self):
 		# Iterate over all systems
-		pass
+		for system in self.systems:
+			system.update(self)
 
 world = World(HealthIncrementor(),HealthIncrementor())
 h = Health(10)
