@@ -32,6 +32,11 @@ class Position(Component):
 		self.x = x
 		self.y = y
 
+class Armor(Component):
+	def __init__(self, value:float) -> None:
+		super().__init__()
+		self.value:float=value
+
 
 ##############################################################################
 # 						WORLD
@@ -96,32 +101,28 @@ class World():
 		pass
 		
 
+		# 0.0 Check entity even exists
+		# if 
+		for entity in entities:
+			if not entity in self.entity_to_component_dict:
+				raise Exception(f"ERROR: {entity} does NOT exist. Perhaps it was already been deleted? Or mistake?")
+
 		# 1.0 Remove entities from `component_constructor_to_entities`
 		# 1.1 Iterate over all entities to collect their components' constructors
 		component_constructor_set:Set[Type[Component]] = set()
 		for entity in entities:
-			# component_constructor_set.add(self.entity_to_component_dict[entity])
+			
+			# For each of the component_constructors the entity has, remove this entity from `component_constructor_to_entities`
 			for component_constructor in self.entity_to_component_dict[entity]:
-				component_constructor_set.add(component_constructor)
-
-		# 1.2 Use collected component constructors to find the appropriate entities
-		for component_constructor in component_constructor_set:
-			for entity in entities:
 				entity_set = self.component_constructor_to_entities[component_constructor]
-				if entity in entity_set:
-					entity_set.discard(entity)
-
-		# 1.3 and delete
-			self.component_constructor_to_entities
-		component_constructor_set.intersection(self.component_constructor_to_entities)
-
+				entity_set.discard(entity)
 
 
 		# 2.0 Rememove entities from `entity_to_component_dict`
 		for entity in entities:
 			self.entity_to_component_dict.pop(entity)
 
-	def add_components_to_entity(self):
+	def add_components_to_entity(self,entity,*components):
 		# Adds component(s) from entity
 		pass
 
@@ -135,9 +136,17 @@ class World():
 
 world = World(HealthIncrementor(),HealthIncrementor())
 world.add_entity(Health(10),Health(10),Position(1,2))
+world.add_entity(Health(10),Health(10),Position(1,2))
+world.add_entity(Health(10),Health(10),Position(1,2),Armor(100))
+
+print(world.entity_to_component_dict)
+print(world.component_constructor_to_entities)
 world.remove_entities(0)
-
-
+print(world.entity_to_component_dict)
+print(world.component_constructor_to_entities)
+world.remove_entities(0)
+print(world.entity_to_component_dict)
+print(world.component_constructor_to_entities)
 """ 
 ECS Limitations/Specs:
 - Systems can NOT be added or removed after World initialization
