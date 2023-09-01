@@ -109,7 +109,6 @@ class World():
 
 		# 1.0 Remove entities from `component_constructor_to_entities`
 		# 1.1 Iterate over all entities to collect their components' constructors
-		component_constructor_set:Set[Type[Component]] = set()
 		for entity in entities:
 			
 			# For each of the component_constructors the entity has, remove this entity from `component_constructor_to_entities`
