@@ -121,7 +121,7 @@ class World():
 		for entity in entities:
 			self.entity_to_component_dict.pop(entity)
 
-	def add_components_to_entity(self,entity,*components:Component):
+	def add_components_to_entity(self,entity:int,*components:Component):
 		# Adds component(s) from entity
 		""" 
 		Note: You can add multiple of the same type of component to the same entity. But you can't add the same component instance to the entity multiple times  
@@ -132,7 +132,7 @@ class World():
 			raise Exception(f"ERROR: {entity} does NOT exist in self.entity_to_component_dict!")
 		
 
-		# 1.0 Update self.component_constructor_to_entity
+		# 1.0 Update self.component_constructor_to_entities
 		# 1.1 Iterate over all components
 		for component in components:
 			component_constructor = type(component)
@@ -154,28 +154,82 @@ class World():
 			component_dict[component_constructor].append(component)
 
 
-	def remove_components_from_entity(self):
+	def remove_components_from_entity(self,entity:int,*components:Component):
 		# Removes component(s) from entity
-		pass
+		""" 
+		Note: Remember that you can have multiple components of the same type. 
+		"""
+		
+		# 0.0 Check entity exists
+		if not entity in self.entity_to_component_dict:
+			raise Exception("ERROR: `entity` does not exist in `self.entity_to_component_dict`!")
+		
+		# 0.1 Check components actually exist on entity
+		for component in components:
+			component_constructor = type(component)
+
+
+			if not component_constructor in self.entity_to_component_dict[entity]:
+				raise Exception("ERROR: parameter/component constructor supplied does NOT exist on this entity!")
+			component_list = self.entity_to_component_dict[entity][component_constructor]
+			if not component in component_list:
+				raise Exception("ERROR: parameter/component of `remove_components_from_entity` must be an instance already assigned to the entity! Do not instantiate another component then pass it through as an argument!")
+		
+
+		# 1.0 remove components from self.component_constructor_to_entities
+		# If number of components of a certain type that exists in the entity > number of that certain type being passed in, then 'dont remove entity' else 'remove entity'
+		# 1.1 Generate a frequency dict for each component_constructor
+		component_constructor_to_frequency:Dict[Type[Component],int] = {}
+		for component in components:
+			component_constructor = type(component)
+
+			# If component_constructor is first, create initial value
+			if not component_constructor in component_constructor_to_frequency:
+				component_constructor_to_frequency[component_constructor] = 0
+			component_constructor_to_frequency[component_constructor] += 1	
+		
+		# 1.2 Compare frequency dict to actual frequency of entity. If frequency dict is = to actual frequency then delete
+		for  component_constructor, frequency in component_constructor_to_frequency.items():
+			actual_length = len(self.entity_to_component_dict[entity][component_constructor])
+
+			if frequency == actual_length:
+				# Remove entity
+				self.component_constructor_to_entities[component_constructor].remove(entity)
+			elif frequency > actual_length:
+				# Sanity check
+				raise Exception("ERROR: Your frequency should NEVER be above that of the actual. We have a bug!")
+
+
+		# 2.0 remove components from self.entity_to_component_dict
+		for component in components:
+			component_constructor = type(component)
+
+			component_list = self.entity_to_component_dict[entity][component_constructor]
+			component_list.remove(component)
+
 
 	def update(self):
 		# Iterate over all systems
 		pass
 
 world = World(HealthIncrementor(),HealthIncrementor())
-world.add_entity(Health(10))
-world.add_components_to_entity(0,Health(10),Position(1,2))
+h = Health(10)
+a = Armor(11)
+world.add_entity(h)
+world.add_components_to_entity(0,a)
 world.add_entity()
 world.add_components_to_entity(1,Armor(-10))
 world.add_components_to_entity(1,Armor(-10))
 world.add_entity(Health(10),Health(10),Position(1,2),Armor(100))
+
+world.remove_components_from_entity(0,h,a)
 
 print(world.entity_to_component_dict)
 print(world.component_constructor_to_entities)
 world.remove_entities(0)
 print(world.entity_to_component_dict)
 print(world.component_constructor_to_entities)
-world.remove_entities(0)
+world.remove_entities(1)
 print(world.entity_to_component_dict)
 print(world.component_constructor_to_entities)
 """ 
