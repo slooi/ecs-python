@@ -1,4 +1,4 @@
-from typing import Dict, List, Set, Type
+from typing import Dict, List, Set, Tuple, Type
 
 ##############################################################################
 # 						SYSTEMS
@@ -41,10 +41,10 @@ class Position(Component):
 Note: World can be further optimized for performance. Currently it is being used to clearly showcase how to implement ECS 
 """
 class World():
-	def __init__(self,*args) -> None:
+	def __init__(self,*systems:System) -> None:
 		
 		self.entity_counter : int = 0
-		self.systems : List[System] = []
+		self.systems : Tuple[System,...] = systems
 		self.entity_to_component_dict : Dict[int,Dict[Type[Component],List[Component]]] = {} # Note that entities can have multiple of the SAME component
 		self.component_constructor_to_entities : Dict[Type[Component],Set[int]] = {}
 
@@ -111,7 +111,7 @@ class World():
 		# Iterate over all systems
 		pass
 
-world = World()
+world = World(HealthIncrementor(),HealthIncrementor())
 world.add_entity(Health(10),Health(10),Position(1,2))
 
 # a = System()
