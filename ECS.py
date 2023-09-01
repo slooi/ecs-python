@@ -38,7 +38,7 @@ class Position(Component):
 ##############################################################################
 
 """ 
-Note: World can be further optimized for performance. Currently it is being used to clearly showcase how to implement ECS 
+Note: World can be further optimized for performance. Currently it is being optimized to clearly showcase how to implement ECS 
 """
 class World():
 	def __init__(self,*systems:System) -> None:
@@ -82,9 +82,9 @@ class World():
 				self.component_constructor_to_entities[component_constructor] = set()
 			self.component_constructor_to_entities[component_constructor].add(entity_id)
 
+		return entity_id
 
-
-	def remove_entities(self):
+	def remove_entities(self,*entities:int):
 		""" 
 			Question how much should I clean???
 			 - Should I delete the sets if they don't have any entities in them?  eg: self.component_constructor_to_entities[component_constructor]
@@ -94,10 +94,32 @@ class World():
 			- No, don't remove them. This way garbage collector does less work at the expense of a tiny memory overhead
 		"""
 		pass
-			
-		# Remove entity and components from `entity_to_component_dict`
+		
 
-		# Remove 
+		# 1.0 Remove entities from `component_constructor_to_entities`
+		# 1.1 Iterate over all entities to collect their components' constructors
+		component_constructor_set:Set[Type[Component]] = set()
+		for entity in entities:
+			# component_constructor_set.add(self.entity_to_component_dict[entity])
+			for component_constructor in self.entity_to_component_dict[entity]:
+				component_constructor_set.add(component_constructor)
+
+		# 1.2 Use collected component constructors to find the appropriate entities
+		for component_constructor in component_constructor_set:
+			for entity in entities:
+				entity_set = self.component_constructor_to_entities[component_constructor]
+				if entity in entity_set:
+					entity_set.discard(entity)
+
+		# 1.3 and delete
+			self.component_constructor_to_entities
+		component_constructor_set.intersection(self.component_constructor_to_entities)
+
+
+
+		# 2.0 Rememove entities from `entity_to_component_dict`
+		for entity in entities:
+			self.entity_to_component_dict.pop(entity)
 
 	def add_components_to_entity(self):
 		# Adds component(s) from entity
@@ -113,12 +135,7 @@ class World():
 
 world = World(HealthIncrementor(),HealthIncrementor())
 world.add_entity(Health(10),Health(10),Position(1,2))
-
-# a = System()
-# print(a)
-# print(type(a))
-# print(Type(a))
-# a(System)
+world.remove_entities(0)
 
 
 """ 
@@ -126,4 +143,6 @@ ECS Limitations/Specs:
 - Systems can NOT be added or removed after World initialization
 - Multiple of the same system can exist
 - Multiple of the same component can exist within the same entity
+
+- Use ECS for eventsystem
 """
