@@ -121,9 +121,38 @@ class World():
 		for entity in entities:
 			self.entity_to_component_dict.pop(entity)
 
-	def add_components_to_entity(self,entity,*components):
+	def add_components_to_entity(self,entity,*components:Component):
 		# Adds component(s) from entity
-		pass
+		""" 
+		Note: You can add multiple of the same type of component to the same entity. But you can't add the same component instance to the entity multiple times  
+		"""
+
+		# 0.0 Check entity exists
+		if not entity in self.entity_to_component_dict:
+			raise Exception(f"ERROR: {entity} does NOT exist in self.entity_to_component_dict!")
+		
+
+		# 1.0 Update self.component_constructor_to_entity
+		# 1.1 Iterate over all components
+		for component in components:
+			component_constructor = type(component)
+
+			# If component_constructor is new, create new set to store entities
+			if not component_constructor in self.component_constructor_to_entities:
+				self.component_constructor_to_entities[component_constructor] = set()
+			self.component_constructor_to_entities[component_constructor].add(entity)
+
+
+		# 2.0 Update self.entity_to_component_dict - map entities to Dict[component_constructor,component]
+		for component in components:
+			component_dict = self.entity_to_component_dict[entity]
+			component_constructor = type(component)
+
+			# If component constructor is new to component_dict, create new list to store components
+			if not component_constructor in component_dict:
+				component_dict[component_constructor] = []
+			component_dict[component_constructor].append(component)
+
 
 	def remove_components_from_entity(self):
 		# Removes component(s) from entity
@@ -134,8 +163,11 @@ class World():
 		pass
 
 world = World(HealthIncrementor(),HealthIncrementor())
-world.add_entity(Health(10),Health(10),Position(1,2))
-world.add_entity(Health(10),Health(10),Position(1,2))
+world.add_entity(Health(10))
+world.add_components_to_entity(0,Health(10),Position(1,2))
+world.add_entity()
+world.add_components_to_entity(1,Armor(-10))
+world.add_components_to_entity(1,Armor(-10))
 world.add_entity(Health(10),Health(10),Position(1,2),Armor(100))
 
 print(world.entity_to_component_dict)
