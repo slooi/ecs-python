@@ -1,42 +1,39 @@
-from typing import Dict, List, Set, Tuple, Type
+from typing import Any, Dict, List, Set, Tuple, Type, TypeVar, overload
 
 ##############################################################################
-# 						SYSTEMS
+# 						CONSTANTS
 ##############################################################################
+DEBUGGING_MODE = False
+
+
+##############################################################################
+# 						SYSTEM
+##############################################################################
+
+
 class System():
-	def __init__(self) -> None:
-		self.___type___ = "___system___"
-	
-	def update(self):
+	def update(self, world:"World") -> None:
 		raise Exception("ERROR: Class `{}` has NOT implemented its update() method".format(type(self).__name__))
 
-class HealthIncrementor(System):
-	def __init__(self) -> None:
-		super().__init__()
 
 ##############################################################################
-# 						COMPONENTS
+# 						COMPONENT
 ##############################################################################
+
 class Component():
-	def __init__(self) -> None:
-		self.___type___ = "___component___"
+	pass
 
-class Health(Component):
-	def __init__(self,value) -> None:
-		super().__init__()
-		self.value:float = value
 
-class Position(Component):
-	def __init__(self, x:float, y:float) -> None:
-		super().__init__()
-		self.x = x
-		self.y = y
+##############################################################################
+# 						WORLD
+##############################################################################
 
-class Armor(Component):
-	def __init__(self, value:float) -> None:
-		super().__init__()
-		self.value:float=value
-
+T = TypeVar("T")
+T1 = TypeVar("T1", bound=Component)
+T2 = TypeVar("T2", bound=Component)
+T3 = TypeVar("T3", bound=Component)
+T4 = TypeVar("T4", bound=Component)
+T5 = TypeVar("T5", bound=Component)
 
 ##############################################################################
 # 						WORLD
@@ -53,7 +50,18 @@ class World():
 		self.entity_to_component_dict : Dict[int,Dict[Type[Component],List[Component]]] = {} # Note that entities can have multiple of the SAME component
 		self.component_constructor_to_entities : Dict[Type[Component],Set[int]] = {}
 
-	def add_entity(self,*components:Component):
+	# #########################################################
+	# 					ENTITIES
+	# #########################################################
+	def add_entity(self,*components:Component) -> int:
+
+		# 0.0 Check that there are no duplicate component instances
+		if not len(set(components)) == len(components):
+			raise Exception("ERROR: len(set(components)) == len(components)! You can NOT pass in the same component instance multiple times!")
+		if len(components) == 0:
+			print("WARNING: You did not add any components when calling <World>.add_entity()")
+
+
 		# 1.0 Id
 		# 1.1 Assign Id
 		entity_id = self.entity_counter
@@ -89,7 +97,7 @@ class World():
 
 		return entity_id
 
-	def remove_entities(self,*entities:int):
+	def remove_entities(self,*entities:int) -> None:
 		""" 
 			Question how much should I clean???
 			 - Should I delete the sets if they don't have any entities in them?  eg: self.component_constructor_to_entities[component_constructor]
@@ -121,7 +129,10 @@ class World():
 		for entity in entities:
 			self.entity_to_component_dict.pop(entity)
 
-	def add_components_to_entity(self,entity:int,*components:Component):
+	# #########################################################
+	# 					COMPONENTS
+	# #########################################################
+	def add_component_instances_to_entity(self,entity:int,*components:Component) -> None:
 		# Adds component(s) from entity
 		""" 
 		Note: You can add multiple of the same type of component to the same entity. But you can't add the same component instance to the entity multiple times  
@@ -130,6 +141,10 @@ class World():
 		# 0.0 Check entity exists
 		if not entity in self.entity_to_component_dict:
 			raise Exception(f"ERROR: {entity} does NOT exist in self.entity_to_component_dict!")
+		
+		# 0.1 Check that there are no duplicate component instances
+		if not len(set(components)) == len(components):
+			raise Exception("ERROR: len(set(components)) == len(components)! You can NOT pass in the same component instance multiple times!")
 		
 
 		# 1.0 Update self.component_constructor_to_entities
@@ -154,7 +169,7 @@ class World():
 			component_dict[component_constructor].append(component)
 
 
-	def remove_components_from_entity(self,entity:int,*components:Component):
+	def remove_component_instances_from_entity(self,entity:int,*components:Component) -> None:
 		# Removes component(s) from entity
 		""" 
 		Note: Remember that you can have multiple components of the same type. 
@@ -208,36 +223,122 @@ class World():
 			component_list.remove(component)
 
 
+	# #########################################################
+	# 					UPDATE
+	# #########################################################
 	def update(self):
 		# Iterate over all systems
 		for system in self.systems:
 			system.update(self)
 
-world = World(HealthIncrementor(),HealthIncrementor())
-h = Health(10)
-a = Armor(11)
-world.add_entity(h)
-world.add_components_to_entity(0,a)
-world.add_entity()
-world.add_components_to_entity(1,Armor(-10))
-world.add_components_to_entity(1,Armor(-10))
-world.add_entity(Health(10),Health(10),Position(1,2),Armor(100))
+	# #########################################################
+	# 					QUERIES
+	# #########################################################
+	def view(self,*component_constructors:Type[Component]) -> Any:
 
-world.remove_components_from_entity(0,h,a)
+		# 1.0 Get all entities with these component
+		entity_set = self.get_entities_with_component_constructors(*component_constructors)
+		
 
-print(world.entity_to_component_dict)
-print(world.component_constructor_to_entities)
-world.remove_entities(0)
-print(world.entity_to_component_dict)
-print(world.component_constructor_to_entities)
-world.remove_entities(1)
-print(world.entity_to_component_dict)
-print(world.component_constructor_to_entities)
+		# 2.0 get components of entity_set
+		view:Any = []
+		for entity in entity_set:
+			view.append((entity,)+tuple((self.entity_to_component_dict[entity][component_constructor]) for component_constructor in component_constructors))
+		return view
+		# return tuple((entity, *[self.entity_to_component_dict[entity][component_constructor] for component_constructor in component_constructors]) for entity in entity_set)
+
+		""" 
+			examples:
+			return [] if no entities used those component constructors
+		"""
+
+		
+	def remove_components_by_component_constructor_from_entity(self):
+		pass
+
+	def does_entity_has_components_constructor(self):
+		# Note this method is slightly redundant as you could just use `view` instead. However this method is a lot more computationally efficient and more direct at solving its task
+
+		pass
+
+	def get_entities_with_component_constructors(self,*component_constructors:Type[Component]) -> Set[int]:
+		# Get all entities with these component
+
+		# 0.0 Sanity check
+		if not len(component_constructors) == len(set(component_constructors)):
+			raise Exception("ERROR: len(component_constructors) == len(set(component_constructors))! You can NOT specify the same component constructor multiple times!")
+
+
+		# 0.0 Check component_constructors even exist
+		for component_constructor in component_constructors:
+			if not component_constructor in self.component_constructor_to_entities:
+				raise Exception(f"ERROR: component_constructor `{component_constructor}` does NOT exist in self.component_constructor_to_entities. You can not `view` it!") 
+
+		
+
+		# 1.0 Create entity sets belonging to each of the component_constructors
+		collected_entities : List[Set[int]] = []
+		for component_constructor in component_constructors:
+
+			# Check if component_constructor even exists yet
+			if not component_constructor in self.component_constructor_to_entities:
+				collected_entities.append(set())
+				if DEBUGGING_MODE:
+					raise Exception(F"WARNING: {component_constructor} does not exist in self.component_constructor_to_entities") # Could get rid of this. Only here during TESTING phase
+			else:
+				collected_entities.append(self.component_constructor_to_entities[component_constructor])
+
+
+		# 2.0 Find the intersection that all the sets have
+		intersection_set = collected_entities[0]
+		for entity_set in collected_entities[1:]:
+			intersection_set = intersection_set.intersection(entity_set)
+
+
+		return intersection_set
+	
+
+
+
+if __name__ == "__main__":
+	##############################################################################
+	# 						COMPONENT & SYSTEM INSTANCES
+	##############################################################################
+
+	class HealthIncrementor(System):
+		def __init__(self) -> None:
+			super().__init__()
+
+	class Health(Component):
+		def __init__(self,value:float) -> None:
+			super().__init__()
+			self.value:float = value
+
+	class Position(Component):
+		def __init__(self, x:float, y:float) -> None:
+			super().__init__()
+			self.x = x
+			self.y = y
+
+	class Armor(Component):
+		def __init__(self, value:float) -> None:
+			super().__init__()
+			self.value:float=value
+
+	world = World(HealthIncrementor(),HealthIncrementor())
+	world.add_entity(Health(10))
+	world.add_entity(Armor(100))
+	world.add_entity(Health(10))
+	world.add_entity(Armor(100),Health(10),Health(99))
+	b = world.view(Health,Armor)
 """ 
 ECS Limitations/Specs:
 - Systems can NOT be added or removed after World initialization
 - Multiple of the same system can exist
-- Multiple of the same component can exist within the same entity
+- Multiple of the same component type can exist within the same entity. You can't add the same component instance multiple times
 
 - Use ECS for eventsystem
+- You can create entities WITHOUT components
+ -> You can get view of entities WITHOUT components
+- Throw error on:  world.view(Health,Position,Position) <- Can't use same component constructor multiple times
 """
