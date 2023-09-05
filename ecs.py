@@ -59,6 +59,7 @@ class World():
 		if not len(set(components)) == len(components):
 			raise Exception("ERROR: len(set(components)) == len(components)! You can NOT pass in the same component instance multiple times!")
 		if len(components) == 0:
+			raise Exception("ERROR: len(components) == 0! You can NOT create an entity with 0 components")
 			print("WARNING: You did not add any components when calling <World>.add_entity()")
 
 
@@ -253,8 +254,25 @@ class World():
 		"""
 
 		
-	def remove_components_by_component_constructor_from_entity(self):
-		pass
+	def remove_components_by_component_constructor_from_entity(self,*component_constructors:Type[Component]) -> Set[int]:
+		# 1.0 Find entities with any of the component 
+		removed_entities_set:Set[int] = set()
+		for component_constructor in component_constructors:
+			# 1.05 Sanity check
+			if not component_constructor in self.component_constructor_to_entities:
+				raise Exception(f"ERROR: {component_constructor} does NOT exist in self.component_constructor_to_entities!")
+
+			# 1.1 Create a set of all entities with component_constructor
+			entity_set = self.component_constructor_to_entities[component_constructor]
+			removed_entities_set = removed_entities_set.union(entity_set)
+
+			# 1.2 Remove component from entities_to_component_dict
+			for entity in entity_set:
+				self.entity_to_component_dict[entity][component_constructor].clear()
+
+			# 1.3 remove component from component_constructor_to_entities
+			self.component_constructor_to_entities[component_constructor].clear()
+		return removed_entities_set
 
 	def does_entity_has_components_constructor(self):
 		# Note this method is slightly redundant as you could just use `view` instead. However this method is a lot more computationally efficient and more direct at solving its task
@@ -267,7 +285,8 @@ class World():
 		# 0.0 Sanity check
 		if not len(component_constructors) == len(set(component_constructors)):
 			raise Exception("ERROR: len(component_constructors) == len(set(component_constructors))! You can NOT specify the same component constructor multiple times!")
-
+		if len(component_constructors) == 0:
+			raise Exception("ERROR: len(component_constructors) == 0! You must pass in at least one component constructor!")
 
 		# 0.0 Check component_constructors even exist
 		for component_constructor in component_constructors:
@@ -325,12 +344,45 @@ if __name__ == "__main__":
 			super().__init__()
 			self.value:float=value
 
-	world = World(HealthIncrementor(),HealthIncrementor())
+	# world = World()
+	# world.add_entity(Health(10))
+	# a = world.remove_components_by_component_constructor_from_entity(Health)
+	# a == {0}
+	# len(world.entity_to_component_dict[0][Health]) == 0
+	# len(world.component_constructor_to_entities[Health]) == 0
+
+	# world = World()
+	# world.add_entity(Health(10))
+	# world.remove_components_by_component_constructor_from_entity(Armor) # raise exception
+
+	# world = World()
+	# world.add_entity(Health(10))
+	# world.add_entity(Health(10))
+	# removed_entities_set = world.remove_components_by_component_constructor_from_entity(Health)
+	# removed_entities_set == {0,1}
+	# world.entity_to_component_dict[0][Health] == []
+	# world.entity_to_component_dict[1][Health] == []
+	# world.component_constructor_to_entities[Health] == set()
+
+	# world = World()
+	# world.add_entity(Health(10))
+	# world.add_entity(Health(10),Armor(10))
+	# removed_entities_set = world.remove_components_by_component_constructor_from_entity(Health)
+	# removed_entities_set == {0,1}
+	# world.entity_to_component_dict[0][Health] == []
+	# world.entity_to_component_dict[1][Health] == []
+	# world.component_constructor_to_entities[Health] == set()
+	# world.component_constructor_to_entities[Armor] == set([1])
+	# len(world.entity_to_component_dict[1][Armor]) == 1
+
+
+	world = World()
 	world.add_entity(Health(10))
-	world.add_entity(Armor(100))
-	world.add_entity(Health(10))
-	world.add_entity(Armor(100),Health(10),Health(99))
-	b = world.view(Health,Armor)
+	world.remove_components_by_component_constructor_from_entity()
+
+	world = World()
+	world.remove_components_by_component_constructor_from_entity(Health)
+
 """ 
 ECS Limitations/Specs:
 - Systems can NOT be added or removed after World initialization
@@ -338,7 +390,7 @@ ECS Limitations/Specs:
 - Multiple of the same component type can exist within the same entity. You can't add the same component instance multiple times
 
 - Use ECS for eventsystem
-- You can create entities WITHOUT components
- -> You can get view of entities WITHOUT components
+- You CANOT create entities WITHOUT components
+ -> This solves this problem: You can get view of entities WITHOUT components
 - Throw error on:  world.view(Health,Position,Position) <- Can't use same component constructor multiple times
 """
