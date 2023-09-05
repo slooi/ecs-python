@@ -38,23 +38,11 @@ DEBUGGING_MODE: bool
 class System:
 	def update(self, world: World) -> None: ...
 
-class Component: ...
-
-class HealthIncrementor(System):
-	def __init__(self) -> None: ...
-
-class Health(Component):
-	value: Incomplete
-	def __init__(self, value: float) -> None: ...
-
-class Position(Component):
-	x: Incomplete
-	y: Incomplete
-	def __init__(self, x: float, y: float) -> None: ...
-
-class Armor(Component):
-	value: Incomplete
-	def __init__(self, value: float) -> None: ...
+class Component: 
+	def pp(self):
+		for attr in dir(self):
+			if len(attr.split("__")) == 1:
+				print("obj.%s = %r" % (attr, getattr(self, attr)))
 
 class World:
 	entity_counter : int
