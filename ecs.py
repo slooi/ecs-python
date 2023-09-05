@@ -277,11 +277,23 @@ class World():
 			self.component_constructor_to_entities[component_constructor].clear()
 		return removed_entities_set
 
-	def does_entity_has_components_constructor(self):
+	def does_entity_have_all_component_constructors(self,entity:int,*component_constructors:Type[Component]) -> bool:
 		# Note this method is slightly redundant as you could just use `view` instead. However this method is a lot more computationally efficient and more direct at solving its task
 
-		pass
+		# 0.0 Check if entity even exists
+		if not entity in self.entity_to_component_dict:
+			raise Exception("ERROR: entity does NOT exist!")
 
+		# 0.5 Check if component constructors even exist in the first place (THIS IS not necessary as some components are rarely added and I will only know once it is added so this is a bad test) SKIP
+
+		# 1.0 check if entity has component_constructors
+		for component_constructor in component_constructors:
+			if not component_constructor in self.entity_to_component_dict[entity]:
+				return False
+			else:
+				if not entity in self.component_constructor_to_entities[component_constructor]:
+					return False
+		return True
 	def get_entities_with_component_constructors(self,*component_constructors:Type[Component]) -> Set[int]:
 		# Get all entities with these component
 
@@ -347,12 +359,6 @@ if __name__ == "__main__":
 			super().__init__()
 			self.value:float=value
 
-	# world = World()
-	# world.add_entity(Health(10))
-	# a = world.remove_components_by_component_constructor_from_entity(Health)
-	# a == {0}
-	# len(world.entity_to_component_dict[0][Health]) == 0
-	# len(world.component_constructor_to_entities[Health]) == 0
 
 
 """ 
