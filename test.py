@@ -4,11 +4,9 @@ from ecs import World, Component, System
 
 class Health(Component):
 	def __init__(self,health:float) -> None:
-		super().__init__()
 		self.health = health
 class Armor(Component):
 	def __init__(self,armor:float) -> None:
-		super().__init__()
 		self.armor = armor
 
 
