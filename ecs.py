@@ -257,7 +257,7 @@ class World():
 		"""
 
 		
-	def remove_components_by_component_constructor_from_entity(self,*component_constructors:Type[Component]) -> Set[int]:
+	def remove_components_by_component_constructor_from_all_entities(self,*component_constructors:Type[Component]) -> Set[int]:
 		# 1.0 Find entities with any of the component 
 		removed_entities_set:Set[int] = set()
 		for component_constructor in component_constructors:
