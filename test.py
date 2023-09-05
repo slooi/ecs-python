@@ -39,7 +39,7 @@ class TestWorld(unittest.TestCase):
 
 			
 		world = World()
-		world.add_entity(Armor("10"))
+		world.add_entity(Armor(10))
 		self.assertEqual(len(world.component_constructor_to_entities),1)
 		self.assertEqual(len(world.entity_to_component_dict[0][Armor]),1)
 
