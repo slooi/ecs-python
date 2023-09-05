@@ -32,9 +32,16 @@ class TestWorld(unittest.TestCase):
 
 	def test_add_entity__no_component(self):
 		world = World()
-		world.add_entity()
-		self.assertEqual(world.component_constructor_to_entities,{})
-		self.assertEqual(world.entity_to_component_dict,{0:{}})
+		try:
+			world.add_entity()
+		except Exception as err:
+			self.assertEqual(str(err),"ERROR: len(components) == 0! You can NOT create an entity with 0 components")
+
+			
+		world = World()
+		world.add_entity(Armor("10"))
+		self.assertEqual(len(world.component_constructor_to_entities),1)
+		self.assertEqual(len(world.entity_to_component_dict[0][Armor]),1)
 
 
 	def test_add_entity__same_instance_component(self):
@@ -108,6 +115,84 @@ class TestWorld(unittest.TestCase):
 
 		view = world.view(Health,Armor)
 		self.assertEqual(view,[])
+
+	def test_remove_components_by_component_constructor_from_entity(self):	
+		world = World()
+		world.add_entity(Health(10))
+		removed_entities_set = world.remove_components_by_component_constructor_from_entity(Health)
+		self.assertEqual(removed_entities_set,{0})
+		self.assertEqual(len(world.entity_to_component_dict[0][Health]),0)
+		self.assertEqual(len(world.component_constructor_to_entities[Health]),0)
+
+		world = World()
+		world.add_entity(Health(10))
+		try:
+			world.remove_components_by_component_constructor_from_entity(Armor) # raise exception
+		except Exception as err:
+			self.assertEqual(str(err),f"ERROR: {Armor} does NOT exist in self.component_constructor_to_entities!")
+
+		world = World()
+		world.add_entity(Health(10))
+		world.add_entity(Health(10))
+		removed_entities_set = world.remove_components_by_component_constructor_from_entity(Health)
+		self.assertEqual(removed_entities_set == {0,1}								,True)
+		self.assertEqual(world.entity_to_component_dict[0][Health] == []			,True)
+		self.assertEqual(world.entity_to_component_dict[1][Health] == []			,True)
+		self.assertEqual(world.component_constructor_to_entities[Health] == set()	,True)
+
+		world = World()
+		world.add_entity(Health(10))
+		world.add_entity(Health(10),Armor(10))
+		removed_entities_set = world.remove_components_by_component_constructor_from_entity(Health)
+		removed_entities_set == {0,1}
+		self.assertEqual(world.entity_to_component_dict[0][Health] == []				, True)
+		self.assertEqual(world.entity_to_component_dict[1][Health] == []				, True)
+		self.assertEqual(world.component_constructor_to_entities[Health] == set()		, True)
+		self.assertEqual(world.component_constructor_to_entities[Armor] == set([1])		, True)
+		self.assertEqual(len(world.entity_to_component_dict[1][Armor]) == 1				, True)
+
+
+		world = World()
+		world.add_entity(Health(10))
+		self.assertEqual(world.remove_components_by_component_constructor_from_entity() == set()	,True)
+
+		world = World()
+		try:
+			world.remove_components_by_component_constructor_from_entity(Health) # raise exception
+		except Exception as err:
+			self.assertEqual(str(err),f"ERROR: {Health} does NOT exist in self.component_constructor_to_entities!")
+
+		
+	# world = World()
+	# world.add_entity(Health(10))
+	# a = world.remove_components_by_component_constructor_from_entity(Health)
+	# a == {0}
+	# len(world.entity_to_component_dict[0][Health]) == 0
+	# len(world.component_constructor_to_entities[Health]) == 0
+
+	# world = World()
+	# world.add_entity(Health(10))
+	# world.remove_components_by_component_constructor_from_entity(Armor) # raise exception
+
+	# world = World()
+	# world.add_entity(Health(10))
+	# world.add_entity(Health(10))
+	# removed_entities_set = world.remove_components_by_component_constructor_from_entity(Health)
+	# removed_entities_set == {0,1}
+	# world.entity_to_component_dict[0][Health] == []
+	# world.entity_to_component_dict[1][Health] == []
+	# world.component_constructor_to_entities[Health] == set()
+
+	# world = World()
+	# world.add_entity(Health(10))
+	# world.add_entity(Health(10),Armor(10))
+	# removed_entities_set = world.remove_components_by_component_constructor_from_entity(Health)
+	# removed_entities_set == {0,1}
+	# world.entity_to_component_dict[0][Health] == []
+	# world.entity_to_component_dict[1][Health] == []
+	# world.component_constructor_to_entities[Health] == set()
+	# world.component_constructor_to_entities[Armor] == set([1])
+	# len(world.entity_to_component_dict[1][Armor]) == 1
 
 	
 if __name__ == "__main__":
