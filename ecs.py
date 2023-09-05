@@ -226,6 +226,26 @@ class World():
 			component_list = self.entity_to_component_dict[entity][component_constructor]
 			component_list.remove(component)
 
+		
+	def remove_components_by_component_constructor_from_all_entities(self,*component_constructors:Type[Component]) -> Set[int]:
+		# 1.0 Find entities with any of the component 
+		removed_entities_set:Set[int] = set()
+		for component_constructor in component_constructors:
+			# 1.05 Sanity check
+			if not component_constructor in self.component_constructor_to_entities:
+				raise Exception(f"ERROR: {component_constructor} does NOT exist in self.component_constructor_to_entities!")
+
+			# 1.1 Create a set of all entities with component_constructor
+			entity_set = self.component_constructor_to_entities[component_constructor]
+			removed_entities_set = removed_entities_set.union(entity_set)
+
+			# 1.2 Remove component from entities_to_component_dict
+			for entity in entity_set:
+				self.entity_to_component_dict[entity][component_constructor].clear()
+
+			# 1.3 remove component from component_constructor_to_entities
+			self.component_constructor_to_entities[component_constructor].clear()
+		return removed_entities_set
 
 	# #########################################################
 	# 					UPDATE
@@ -256,26 +276,6 @@ class World():
 			return [] if no entities used those component constructors
 		"""
 
-		
-	def remove_components_by_component_constructor_from_all_entities(self,*component_constructors:Type[Component]) -> Set[int]:
-		# 1.0 Find entities with any of the component 
-		removed_entities_set:Set[int] = set()
-		for component_constructor in component_constructors:
-			# 1.05 Sanity check
-			if not component_constructor in self.component_constructor_to_entities:
-				raise Exception(f"ERROR: {component_constructor} does NOT exist in self.component_constructor_to_entities!")
-
-			# 1.1 Create a set of all entities with component_constructor
-			entity_set = self.component_constructor_to_entities[component_constructor]
-			removed_entities_set = removed_entities_set.union(entity_set)
-
-			# 1.2 Remove component from entities_to_component_dict
-			for entity in entity_set:
-				self.entity_to_component_dict[entity][component_constructor].clear()
-
-			# 1.3 remove component from component_constructor_to_entities
-			self.component_constructor_to_entities[component_constructor].clear()
-		return removed_entities_set
 
 	def does_entity_have_all_component_constructors(self,entity:int,*component_constructors:Type[Component]) -> bool:
 		# Note this method is slightly redundant as you could just use `view` instead. However this method is a lot more computationally efficient and more direct at solving its task
@@ -294,6 +294,7 @@ class World():
 				if not entity in self.component_constructor_to_entities[component_constructor]:
 					return False
 		return True
+	
 	def get_entities_with_component_constructors(self,*component_constructors:Type[Component]) -> Set[int]:
 		# Get all entities with these component
 
