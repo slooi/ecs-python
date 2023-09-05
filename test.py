@@ -189,6 +189,21 @@ class TestWorld(unittest.TestCase):
 			world.does_entity_have_all_component_constructors(2,Health)
 		except Exception as err:
 			self.assertEqual(str(err),"ERROR: entity does NOT exist!")
+
+	def test(self):
+		world = World()
+		world.add_entity(Health(10))
+		try:
+			world.remove_components_by_component_constructors_from_entity(0,Armor)
+		except Exception as err:
+			# err
+			self.assertEqual(type(err),Exception)
+
+		world = World()
+		world.add_entity(Health(10))
+		world.remove_components_by_component_constructors_from_entity(0,Health)
+		self.assertEqual(world.component_constructor_to_entities[Health] == set()		,True)
+		self.assertEqual(world.entity_to_component_dict[0][Health] == []				,True)
 	
 if __name__ == "__main__":
 	unittest.main()

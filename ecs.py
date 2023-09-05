@@ -227,8 +227,20 @@ class World():
 			component_list.remove(component)
 
 
-	def remove_components_by_component_constructors_from_entity(self,entity:int,*component_constructor:Type[Component]) -> None:
+	def remove_components_by_component_constructors_from_entity(self,entity:int,*component_constructors:Type[Component]) -> None:
+		# 0.0 check if entity exists
+		if not entity in self.entity_to_component_dict:
+			raise Exception(f"ERROR: entity `{entity}` does NOT exist!")
+		
+		# 1.0 Iterate over all component_constructors
+		for component_constructor in component_constructors:
+			# 1.1 Remove all instances of component_constructors from entity in self.entity_to_component_constructor_dict
+			if not component_constructor in self.entity_to_component_dict[entity]:
+				raise Exception(f"ERROR: component_constructor {component_constructor} does not exist in self.entity_to_component_dict[entity]!")
+			self.entity_to_component_dict[entity][component_constructor] = []
 
+			# 1.2 Remove all instances of component_constructors from entty in self.component_constructor_to_entities
+			self.component_constructor_to_entities[component_constructor].remove(entity)
 		
 	def remove_components_by_component_constructors_from_all_entities(self,*component_constructors:Type[Component]) -> Set[int]:
 		# 1.0 Find entities with any of the component 
@@ -363,7 +375,19 @@ if __name__ == "__main__":
 			super().__init__()
 			self.value:float=value
 
+	world = World()
+	world.add_entity(Health(10))
+	try:
+		world.remove_components_by_component_constructors_from_entity(0,Armor)
+	except Exception as err:
+		# err
+		pass
 
+	world = World()
+	world.add_entity(Health(10))
+	world.remove_components_by_component_constructors_from_entity(0,Health)
+	world.component_constructor_to_entities[Health] == set()
+	world.entity_to_component_dict[0][Health] == []
 
 """ 
 ECS Limitations/Specs:
