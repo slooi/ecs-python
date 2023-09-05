@@ -70,121 +70,42 @@ class World:
 	def does_entity_has_components_constructor(self) -> None: ...
 	def get_entities_with_component_constructors(self, *component_constructors: Type[Component]) -> Set[int]: ...
 	def remove_components_by_component_constructor_from_entity(self,*component_constructors:Type[Component]) -> Set[int]: ...
-
 	@overload
-	def view(self, s1: Type[T1], /) -> List[tuple[int, T1]]:
+	def view(self, s1: Type[T1], /) -> List[tuple[int, List[T1]]]:
 		...
 
 	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], /) -> List[tuple[int, T1, T2]]:
+	def view(self, s1: Type[T1], s2: Type[T2], /) -> List[tuple[int, List[T1], List[T2]]]:
 		...
 
 	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], /) -> List[tuple[int, T1, T2, T3]]:
+	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], /) -> List[tuple[int, List[T1], List[T2], List[T3]]]:
 		...
 
 	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], /) -> List[tuple[int, T1, T2, T3, T4]]:
+	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4]]]:
 		...
 
 	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], /) -> List[tuple[int, T1, T2, T3, T4, T5]]:
+	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4], List[T5]]]:
 		...
 
 	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6]]:
+	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4], List[T5], List[T6]]]:
 		...
 
 	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7]]:
+	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4], List[T5], List[T6], List[T7]]]:
 		...
 
 	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8]]:
+	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4], List[T5], List[T6], List[T7], List[T8]]]:
 		...
 
 	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9]]:
+	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4], List[T5], List[T6], List[T7], List[T8], List[T9]]]:
 		...
 
 	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10]]:
-		...
-
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11]]:
-		...
-
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12]]:
-		...
-
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13]]:
-		...
-		
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], s14: Type[T14], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14]]:
-		...
-
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], s14: Type[T14], s15: Type[T15], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15]]:
-		...
-
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], s14: Type[T14], s15: Type[T15], s16: Type[T16], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16]]:
-		...
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], s14: Type[T14], s15: Type[T15], s16: Type[T16], s17: Type[T17], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17]]:
-		...
-
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], s14: Type[T14], s15: Type[T15], s16: Type[T16], s17: Type[T17], s18: Type[T18], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18]]:
-		...
-
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], s14: Type[T14], s15: Type[T15], s16: Type[T16], s17: Type[T17], s18: Type[T18], s19: Type[T19], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19]]:
-		...
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], s14: Type[T14], s15: Type[T15], s16: Type[T16], s17: Type[T17], s18: Type[T18], s19: Type[T19], s20: Type[T20], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20]]:
-		...
-
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], s14: Type[T14], s15: Type[T15], s16: Type[T16], s17: Type[T17], s18: Type[T18], s19: Type[T19], s20: Type[T20], s21: Type[T21], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21]]:
-		...
-
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], s14: Type[T14], s15: Type[T15], s16: Type[T16], s17: Type[T17], s18: Type[T18], s19: Type[T19], s20: Type[T20], s21: Type[T21], s22: Type[T22], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22]]:
-		...
-
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], s14: Type[T14], s15: Type[T15], s16: Type[T16], s17: Type[T17], s18: Type[T18], s19: Type[T19], s20: Type[T20], s21: Type[T21], s22: Type[T22], s23: Type[T23], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23]]:
-		...
-
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], s14: Type[T14], s15: Type[T15], s16: Type[T16], s17: Type[T17], s18: Type[T18], s19: Type[T19], s20: Type[T20], s21: Type[T21], s22: Type[T22], s23: Type[T23], s24: Type[T24], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24]]:
-		...
-
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], s14: Type[T14], s15: Type[T15], s16: Type[T16], s17: Type[T17], s18: Type[T18], s19: Type[T19], s20: Type[T20], s21: Type[T21], s22: Type[T22], s23: Type[T23], s24: Type[T24], s25: Type[T25], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25]]:
-		...
-
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], s14: Type[T14], s15: Type[T15], s16: Type[T16], s17: Type[T17], s18: Type[T18], s19: Type[T19], s20: Type[T20], s21: Type[T21], s22: Type[T22], s23: Type[T23], s24: Type[T24], s25: Type[T25], s26: Type[T26], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26]]:
-		...
-
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], s14: Type[T14], s15: Type[T15], s16: Type[T16], s17: Type[T17], s18: Type[T18], s19: Type[T19], s20: Type[T20], s21: Type[T21], s22: Type[T22], s23: Type[T23], s24: Type[T24], s25: Type[T25], s26: Type[T26], s27: Type[T27], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27]]:
-		...
-
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], s14: Type[T14], s15: Type[T15], s16: Type[T16], s17: Type[T17], s18: Type[T18], s19: Type[T19], s20: Type[T20], s21: Type[T21], s22: Type[T22], s23: Type[T23], s24: Type[T24], s25: Type[T25], s26: Type[T26], s27: Type[T27], s28: Type[T28], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28]]:
-		...
-
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], s14: Type[T14], s15: Type[T15], s16: Type[T16], s17: Type[T17], s18: Type[T18], s19: Type[T19], s20: Type[T20], s21: Type[T21], s22: Type[T22], s23: Type[T23], s24: Type[T24], s25: Type[T25], s26: Type[T26], s27: Type[T27], s28: Type[T28], s29: Type[T29], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29]]:
-		...
-
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], s11: Type[T11], s12: Type[T12], s13: Type[T13], s14: Type[T14], s15: Type[T15], s16: Type[T16], s17: Type[T17], s18: Type[T18], s19: Type[T19], s20: Type[T20], s21: Type[T21], s22: Type[T22], s23: Type[T23], s24: Type[T24], s25: Type[T25], s26: Type[T26], s27: Type[T27], s28: Type[T28], s29: Type[T29], s30: Type[T30], /) -> List[tuple[int, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30]]:
+	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4], List[T5], List[T6], List[T7], List[T8], List[T9], List[T10]]]:
 		...
