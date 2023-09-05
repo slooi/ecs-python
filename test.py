@@ -160,38 +160,40 @@ class TestWorld(unittest.TestCase):
 		except Exception as err:
 			self.assertEqual(str(err),f"ERROR: {Health} does NOT exist in self.component_constructor_to_entities!")
 
-		
-	# world = World()
-	# world.add_entity(Health(10))
-	# a = world.remove_components_by_component_constructor_from_entity(Health)
-	# a == {0}
-	# len(world.entity_to_component_dict[0][Health]) == 0
-	# len(world.component_constructor_to_entities[Health]) == 0
+	def test_does_entity_have_all_component_constructors(self):
+			
+		world = World()
+		world.add_entity(Health(10))
+		self.assertEqual(world.does_entity_have_all_component_constructors(0,Health),True)
 
-	# world = World()
-	# world.add_entity(Health(10))
-	# world.remove_components_by_component_constructor_from_entity(Armor) # raise exception
+		world = World()
+		world.add_entity(Health(10))
+		self.assertEqual(world.does_entity_have_all_component_constructors(0,Armor),False)
 
-	# world = World()
-	# world.add_entity(Health(10))
-	# world.add_entity(Health(10))
-	# removed_entities_set = world.remove_components_by_component_constructor_from_entity(Health)
-	# removed_entities_set == {0,1}
-	# world.entity_to_component_dict[0][Health] == []
-	# world.entity_to_component_dict[1][Health] == []
-	# world.component_constructor_to_entities[Health] == set()
+		world = World()
+		world.add_entity(Health(10))
+		world.add_entity(Armor(10))
+		self.assertEqual(world.does_entity_have_all_component_constructors(0,Armor),False)
 
-	# world = World()
-	# world.add_entity(Health(10))
-	# world.add_entity(Health(10),Armor(10))
-	# removed_entities_set = world.remove_components_by_component_constructor_from_entity(Health)
-	# removed_entities_set == {0,1}
-	# world.entity_to_component_dict[0][Health] == []
-	# world.entity_to_component_dict[1][Health] == []
-	# world.component_constructor_to_entities[Health] == set()
-	# world.component_constructor_to_entities[Armor] == set([1])
-	# len(world.entity_to_component_dict[1][Armor]) == 1
+		world = World()
+		h = Health(10)
+		world.add_entity(h)
+		world.remove_component_instances_from_entity(0,h) # <- need to change this
+		world.add_entity(Armor(10))
+		self.assertEqual(world.does_entity_have_all_component_constructors(0,Health),False)
 
+		world = World()
+		h = Health(10)
+		world.add_entity(h)
+		try:
+			world.does_entity_have_all_component_constructors(2,Health)
+		except Exception as err:
+			self.assertEqual(str(err),"ERROR: entity does NOT exist!")
 	
 if __name__ == "__main__":
 	unittest.main()
+		# world = World()
+		# world.add_entity(Health(10))
+		# world.remove_components_by_component_constructor_from_entity() # <- need to change this
+		# world.add_entity(Armor(10))
+		# print(world.does_entity_have_all_component_constructors(0,Health)==False)
