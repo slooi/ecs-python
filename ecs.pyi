@@ -39,10 +39,7 @@ class System:
 	def update(self, world: World) -> None: ...
 
 class Component: 
-	def pp(self):
-		for attr in dir(self):
-			if len(attr.split("__")) == 1:
-				print("obj.%s = %r" % (attr, getattr(self, attr)))
+	def pp(self) -> None: ...
 
 class World:
 	entity_counter : int
