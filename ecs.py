@@ -351,37 +351,6 @@ if __name__ == "__main__":
 	# len(world.entity_to_component_dict[0][Health]) == 0
 	# len(world.component_constructor_to_entities[Health]) == 0
 
-	# world = World()
-	# world.add_entity(Health(10))
-	# world.remove_components_by_component_constructor_from_entity(Armor) # raise exception
-
-	# world = World()
-	# world.add_entity(Health(10))
-	# world.add_entity(Health(10))
-	# removed_entities_set = world.remove_components_by_component_constructor_from_entity(Health)
-	# removed_entities_set == {0,1}
-	# world.entity_to_component_dict[0][Health] == []
-	# world.entity_to_component_dict[1][Health] == []
-	# world.component_constructor_to_entities[Health] == set()
-
-	# world = World()
-	# world.add_entity(Health(10))
-	# world.add_entity(Health(10),Armor(10))
-	# removed_entities_set = world.remove_components_by_component_constructor_from_entity(Health)
-	# removed_entities_set == {0,1}
-	# world.entity_to_component_dict[0][Health] == []
-	# world.entity_to_component_dict[1][Health] == []
-	# world.component_constructor_to_entities[Health] == set()
-	# world.component_constructor_to_entities[Armor] == set([1])
-	# len(world.entity_to_component_dict[1][Armor]) == 1
-
-
-	world = World()
-	world.add_entity(Health(10))
-	world.remove_components_by_component_constructor_from_entity()
-
-	world = World()
-	world.remove_components_by_component_constructor_from_entity(Health)
 
 """ 
 ECS Limitations/Specs:
