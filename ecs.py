@@ -134,7 +134,7 @@ class World():
 			self.entity_to_component_dict.pop(entity)
 
 	# #########################################################
-	# 					COMPONENTS
+	# 					COMPONENTS - ADD/DELETE
 	# #########################################################
 	def add_component_instances_to_entity(self,entity:int,*components:Component) -> None:
 		# Adds component(s) from entity
@@ -226,8 +226,11 @@ class World():
 			component_list = self.entity_to_component_dict[entity][component_constructor]
 			component_list.remove(component)
 
+
+	def remove_components_by_component_constructors_from_entity(self,entity:int,*component_constructor:Type[Component]) -> None:
+
 		
-	def remove_components_by_component_constructor_from_all_entities(self,*component_constructors:Type[Component]) -> Set[int]:
+	def remove_components_by_component_constructors_from_all_entities(self,*component_constructors:Type[Component]) -> Set[int]:
 		# 1.0 Find entities with any of the component 
 		removed_entities_set:Set[int] = set()
 		for component_constructor in component_constructors:

@@ -114,10 +114,10 @@ class TestWorld(unittest.TestCase):
 		view = world.view(Health,Armor)
 		self.assertEqual(view,[])
 
-	def test_remove_components_by_component_constructor_from_all_entities(self):	
+	def test_remove_components_by_component_constructors_from_all_entities(self):	
 		world = World()
 		world.add_entity(Health(10))
-		removed_entities_set = world.remove_components_by_component_constructor_from_all_entities(Health)
+		removed_entities_set = world.remove_components_by_component_constructors_from_all_entities(Health)
 		self.assertEqual(removed_entities_set,{0})
 		self.assertEqual(len(world.entity_to_component_dict[0][Health]),0)
 		self.assertEqual(len(world.component_constructor_to_entities[Health]),0)
@@ -125,14 +125,14 @@ class TestWorld(unittest.TestCase):
 		world = World()
 		world.add_entity(Health(10))
 		try:
-			world.remove_components_by_component_constructor_from_all_entities(Armor) # raise exception
+			world.remove_components_by_component_constructors_from_all_entities(Armor) # raise exception
 		except Exception as err:
 			self.assertEqual(str(err),f"ERROR: {Armor} does NOT exist in self.component_constructor_to_entities!")
 
 		world = World()
 		world.add_entity(Health(10))
 		world.add_entity(Health(10))
-		removed_entities_set = world.remove_components_by_component_constructor_from_all_entities(Health)
+		removed_entities_set = world.remove_components_by_component_constructors_from_all_entities(Health)
 		self.assertEqual(removed_entities_set == {0,1}								,True)
 		self.assertEqual(world.entity_to_component_dict[0][Health] == []			,True)
 		self.assertEqual(world.entity_to_component_dict[1][Health] == []			,True)
@@ -141,7 +141,7 @@ class TestWorld(unittest.TestCase):
 		world = World()
 		world.add_entity(Health(10))
 		world.add_entity(Health(10),Armor(10))
-		removed_entities_set = world.remove_components_by_component_constructor_from_all_entities(Health)
+		removed_entities_set = world.remove_components_by_component_constructors_from_all_entities(Health)
 		removed_entities_set == {0,1}
 		self.assertEqual(world.entity_to_component_dict[0][Health] == []				, True)
 		self.assertEqual(world.entity_to_component_dict[1][Health] == []				, True)
@@ -152,11 +152,11 @@ class TestWorld(unittest.TestCase):
 
 		world = World()
 		world.add_entity(Health(10))
-		self.assertEqual(world.remove_components_by_component_constructor_from_all_entities() == set()	,True)
+		self.assertEqual(world.remove_components_by_component_constructors_from_all_entities() == set()	,True)
 
 		world = World()
 		try:
-			world.remove_components_by_component_constructor_from_all_entities(Health) # raise exception
+			world.remove_components_by_component_constructors_from_all_entities(Health) # raise exception
 		except Exception as err:
 			self.assertEqual(str(err),f"ERROR: {Health} does NOT exist in self.component_constructor_to_entities!")
 
@@ -194,6 +194,6 @@ if __name__ == "__main__":
 	unittest.main()
 		# world = World()
 		# world.add_entity(Health(10))
-		# world.remove_components_by_component_constructor_from_all_entities() # <- need to change this
+		# world.remove_components_by_component_constructors_from_all_entities() # <- need to change this
 		# world.add_entity(Armor(10))
 		# print(world.does_entity_have_all_component_constructors(0,Health)==False)
