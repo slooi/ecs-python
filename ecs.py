@@ -320,9 +320,10 @@ class World():
 			raise Exception("ERROR: len(component_constructors) == 0! You must pass in at least one component constructor!")
 
 		# 0.0 Check component_constructors even exist
-		for component_constructor in component_constructors:
-			if not component_constructor in self.component_constructor_to_entities:
-				raise Exception(f"ERROR: component_constructor `{component_constructor}` does NOT exist in self.component_constructor_to_entities. You can not `view` it!") 
+		if DEBUGGING_MODE:
+			for component_constructor in component_constructors:
+				if not component_constructor in self.component_constructor_to_entities:
+					raise Exception(f"ERROR: component_constructor `{component_constructor}` does NOT exist in self.component_constructor_to_entities. You can not `view` it!") 
 
 		
 
