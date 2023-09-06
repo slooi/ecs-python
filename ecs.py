@@ -359,6 +359,44 @@ class World():
 		return intersection_set
 
 	@overload
+	def get_components_from_entity(self, entity: int, cc1: Type[T1], /) -> Tuple[List[T1]]:
+		...
+	@overload
+	def get_components_from_entity(self, entity: int, cc1: Type[T1], cc2: Type[T1], /) -> Tuple[List[T1], List[T2]]:
+		...
+	@overload
+	def get_components_from_entity(self, entity: int, cc1: Type[T1], cc2: Type[T1], cc3: Type[T1], /) -> Tuple[List[T1], List[T2], List[T3]]:
+		...
+	@overload
+	def get_components_from_entity(self, entity: int, cc1: Type[T1], cc2: Type[T1], cc3: Type[T1], cc4: Type[T1], /) -> Tuple[List[T1], List[T2], List[T3], List[T4]]:
+		...
+	@overload
+	def get_components_from_entity(self, entity: int, cc1: Type[T1], cc2: Type[T1], cc3: Type[T1], cc4: Type[T1], cc5: Type[T1], /) -> Tuple[List[T1], List[T2], List[T3], List[T4], List[T5]]:
+		...
+	@overload
+	def get_components_from_entity(self, entity: int, cc1: Type[T1], cc2: Type[T1], cc3: Type[T1], cc4: Type[T1], cc5: Type[T1], cc6: Type[T1], /) -> Tuple[List[T1], List[T2], List[T3], List[T4], List[T5], List[T6]]:
+		...
+	def get_components_from_entity(self,entity:int, *component_constructors:Type[Component]) -> Any:
+			""" 
+				Returns component instances of entity
+			"""
+
+			# 0.0 Check if entity exists
+			if not entity in self.entity_to_component_dict:
+				raise Exception(f"ERROR: entity `{entity}` does NOT exist!")
+			
+			# 0.5 Check if component_constructors exist (You should always check using `does_entity_have_all_component_constructors` first!)
+			for component_constructor in component_constructors:
+				if not component_constructor in self.component_constructor_to_entities:
+					raise Exception(f"ERROR: component_constructor `{component_constructor}` does NOT exist!")
+
+			# 1.0
+			# 1.1 Check i  
+			return tuple((self.entity_to_component_dict[entity][component_constructor]) for component_constructor in component_constructors)
+
+
+
+	@overload
 	def view(self, s1: Type[T1], /) -> List[tuple[int, List[T1]]]:
 		...
 	@overload
@@ -442,12 +480,6 @@ if __name__ == "__main__":
 	except Exception as err:
 		# err
 		pass
-
-	world = World()
-	world.add_entity(Health(10))
-	world.remove_components_by_component_constructors_from_entity(0,Health)
-	world.component_constructor_to_entities[Health] == set()
-	world.entity_to_component_dict[0][Health] == []
 
 """ 
 ECS Limitations/Specs:

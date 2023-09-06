@@ -204,6 +204,26 @@ class TestWorld(unittest.TestCase):
 		world.remove_components_by_component_constructors_from_entity(0,Health)
 		self.assertEqual(world.component_constructor_to_entities[Health] == set()		,True)
 		self.assertEqual(world.entity_to_component_dict[0][Health] == []				,True)
+
+	def test_get_components_from_entity(self):
+		world = World()
+		world.add_entity(Health(10))
+		components_view = world.get_components_from_entity(0,Health)
+		self.assertEqual(len(components_view) == 1,True)
+
+		world = World()
+		world.add_entity(Health(10))
+		try:
+			world.get_components_from_entity(1,Health)
+		except Exception as err:
+			self.assertEqual(str(err) == 'ERROR: entity `1` does NOT exist!',True)
+
+		world = World()
+		world.add_entity(Health(10))
+		try:
+			world.get_components_from_entity(0,Armor)
+		except Exception as err:
+			self.assertEqual(str(err) == "ERROR: component_constructor `<class '__main__.Armor'>` does NOT exist!",True)
 	
 if __name__ == "__main__":
 	unittest.main()
