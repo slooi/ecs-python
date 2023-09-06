@@ -14,6 +14,10 @@ DEBUGGING_MODE = False
 class System():
 	def update(self, world:"World") -> None:
 		raise Exception("ERROR: Class `{}` has NOT implemented its update() method".format(type(self).__name__))
+	def __str__(self):
+		return str(type(self)).split(".")[1].split("'")[0]+str(vars(self))
+	def __repr__(self):
+		return str(type(self)).split(".")[1].split("'")[0]+str(vars(self))
 
 
 ##############################################################################
@@ -25,6 +29,10 @@ class Component():
 		for attr in dir(self):
 			if len(attr.split("__")) == 1:
 				print("obj.%s = %r" % (attr, getattr(self, attr)))
+	def __str__(self):
+		return str(type(self)).split(".")[1].split("'")[0]+str(vars(self))
+	def __repr__(self):
+		return str(type(self)).split(".")[1].split("'")[0]+str(vars(self))
 
 
 ##############################################################################
