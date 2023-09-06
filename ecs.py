@@ -275,6 +275,8 @@ class World():
 			if not component_constructor in self.component_constructor_to_entities:
 				if DEBUGGING_MODE:
 					raise Exception(f"ERROR: {component_constructor} does NOT exist in self.component_constructor_to_entities!")
+				else:
+					continue
 
 			# 1.1 Create a set of all entities with component_constructor
 			entity_set = self.component_constructor_to_entities[component_constructor]
