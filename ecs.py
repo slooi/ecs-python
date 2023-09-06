@@ -37,6 +37,31 @@ T2 = TypeVar("T2", bound=Component)
 T3 = TypeVar("T3", bound=Component)
 T4 = TypeVar("T4", bound=Component)
 T5 = TypeVar("T5", bound=Component)
+T6 = TypeVar("T6", bound=Component)
+T7 = TypeVar("T7", bound=Component)
+T8 = TypeVar("T8", bound=Component)
+T9 = TypeVar("T9", bound=Component)
+T10 = TypeVar("T10", bound=Component)
+T11 = TypeVar("T11", bound=Component)
+T12 = TypeVar("T12", bound=Component)
+T13 = TypeVar("T13", bound=Component)
+T14 = TypeVar("T14", bound=Component)
+T15 = TypeVar("T15", bound=Component)
+T16 = TypeVar("T16", bound=Component)
+T17 = TypeVar("T17", bound=Component)
+T18 = TypeVar("T18", bound=Component)
+T19 = TypeVar("T19", bound=Component)
+T20 = TypeVar("T20", bound=Component)
+T21 = TypeVar("T21", bound=Component)
+T22 = TypeVar("T22", bound=Component)
+T23 = TypeVar("T23", bound=Component)
+T24 = TypeVar("T24", bound=Component)
+T25 = TypeVar("T25", bound=Component)
+T26 = TypeVar("T26", bound=Component)
+T27 = TypeVar("T27", bound=Component)
+T28 = TypeVar("T28", bound=Component)
+T29 = TypeVar("T29", bound=Component)
+T30 = TypeVar("T30", bound=Component)
 
 ##############################################################################
 # 						WORLD
@@ -248,7 +273,8 @@ class World():
 		for component_constructor in component_constructors:
 			# 1.05 Sanity check
 			if not component_constructor in self.component_constructor_to_entities:
-				raise Exception(f"ERROR: {component_constructor} does NOT exist in self.component_constructor_to_entities!")
+				if DEBUGGING_MODE:
+					raise Exception(f"ERROR: {component_constructor} does NOT exist in self.component_constructor_to_entities!")
 
 			# 1.1 Create a set of all entities with component_constructor
 			entity_set = self.component_constructor_to_entities[component_constructor]
@@ -273,24 +299,6 @@ class World():
 	# #########################################################
 	# 					QUERIES
 	# #########################################################
-	def view(self,*component_constructors:Type[Component]) -> Any:
-
-		# 1.0 Get all entities with these component
-		entity_set = self.get_entities_with_component_constructors(*component_constructors)
-		
-
-		# 2.0 get components of entity_set
-		view:Any = []
-		for entity in entity_set:
-			view.append((entity,)+tuple((self.entity_to_component_dict[entity][component_constructor]) for component_constructor in component_constructors))
-		return view
-		# return tuple((entity, *[self.entity_to_component_dict[entity][component_constructor] for component_constructor in component_constructors]) for entity in entity_set)
-
-		""" 
-			examples:
-			return [] if no entities used those component constructors
-		"""
-
 
 	def does_entity_have_all_component_constructors(self,entity:int,*component_constructors:Type[Component]) -> bool:
 		# Note this method is slightly redundant as you could just use `view` instead. However this method is a lot more computationally efficient and more direct at solving its task
@@ -347,6 +355,55 @@ class World():
 
 
 		return intersection_set
+
+	@overload
+	def view(self, s1: Type[T1], /) -> List[tuple[int, List[T1]]]:
+		...
+	@overload
+	def view(self, s1: Type[T1], s2: Type[T2], /) -> List[tuple[int, List[T1], List[T2]]]:
+		...
+	@overload
+	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], /) -> List[tuple[int, List[T1], List[T2], List[T3]]]:
+		...
+	@overload
+	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4]]]:
+		...
+	@overload
+	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4], List[T5]]]:
+		...
+	@overload
+	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4], List[T5], List[T6]]]:
+		...
+	@overload
+	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4], List[T5], List[T6], List[T7]]]:
+		...
+	@overload
+	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4], List[T5], List[T6], List[T7], List[T8]]]:
+		...
+	@overload
+	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4], List[T5], List[T6], List[T7], List[T8], List[T9]]]:
+		...
+	@overload
+	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4], List[T5], List[T6], List[T7], List[T8], List[T9], List[T10]]]:
+		...
+	def view(self,*component_constructors:Type[Component]) -> Any:
+
+		# 1.0 Get all entities with these component
+		entity_set = self.get_entities_with_component_constructors(*component_constructors)
+		
+
+		# 2.0 get components of entity_set
+		view:Any = []
+		for entity in entity_set:
+			view.append((entity,)+tuple((self.entity_to_component_dict[entity][component_constructor]) for component_constructor in component_constructors))
+		return view
+		# return tuple((entity, *[self.entity_to_component_dict[entity][component_constructor] for component_constructor in component_constructors]) for entity in entity_set)
+
+		""" 
+			examples:
+			return [] if no entities used those component constructors
+		"""
+
 	
 
 
