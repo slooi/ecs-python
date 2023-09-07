@@ -281,10 +281,10 @@ class World():
 		for component_constructor in component_constructors:
 			# 1.05 Sanity check
 			if not component_constructor in self.component_constructor_to_entities:
-				if DEBUGGING_MODE:
-					raise Exception(f"ERROR: {component_constructor} does NOT exist in self.component_constructor_to_entities!")
-				else:
-					continue
+				# if DEBUGGING_MODE:  # !@#!@#!@#!@#!@# REMOVE!
+				raise Exception(f"ERROR: {component_constructor} does NOT exist in self.component_constructor_to_entities!")
+				# else:
+				# 	continue
 
 			# 1.1 Create a set of all entities with component_constructor
 			entity_set = self.component_constructor_to_entities[component_constructor]
@@ -328,6 +328,20 @@ class World():
 					return False
 		return True
 	
+
+	def do_components_exist(self,*component_constructors:Type[Component]) -> bool:
+		"""
+			Checks if component INSTANCES of component_constructors exist within <World>. Use before <World>.view(). 
+		"""
+		for component_constructor in component_constructors:
+			if not component_constructor in self.component_constructor_to_entities:
+				return False
+			else:
+				# Check there's at least one entity with component
+				if len(self.component_constructor_to_entities[component_constructor]) == 0:
+					return False
+		return True
+
 	def get_entities_with_component_constructors(self,*component_constructors:Type[Component]) -> Set[int]:
 		# Get all entities with these component
 
@@ -338,10 +352,10 @@ class World():
 			raise Exception("ERROR: len(component_constructors) == 0! You must pass in at least one component constructor!")
 
 		# 0.0 Check component_constructors even exist
-		if DEBUGGING_MODE:
-			for component_constructor in component_constructors:
-				if not component_constructor in self.component_constructor_to_entities:
-					raise Exception(f"ERROR: component_constructor `{component_constructor}` does NOT exist in self.component_constructor_to_entities. You can not `view` it!") 
+		# if DEBUGGING_MODE:
+		for component_constructor in component_constructors:
+			if not component_constructor in self.component_constructor_to_entities:
+				raise Exception(f"ERROR: component_constructor `{component_constructor}` does NOT exist in self.component_constructor_to_entities. You can not `view` it!") 
 
 		
 
@@ -351,9 +365,10 @@ class World():
 
 			# Check if component_constructor even exists yet
 			if not component_constructor in self.component_constructor_to_entities:
-				collected_entities.append(set())
-				if DEBUGGING_MODE:
-					raise Exception(F"WARNING: {component_constructor} does not exist in self.component_constructor_to_entities") # Could get rid of this. Only here during TESTING phase
+				raise Exception("ERROR: THIS CODE SHOULD NEVER BE RUN!")
+				# collected_entities.append(set())
+				# if DEBUGGING_MODE:
+				# 	raise Exception(F"WARNING: {component_constructor} does not exist in self.component_constructor_to_entities") # Could get rid of this. Only here during TESTING phase
 			else:
 				collected_entities.append(self.component_constructor_to_entities[component_constructor])
 
@@ -482,12 +497,12 @@ if __name__ == "__main__":
 			self.value:float=value
 
 	world = World()
-	world.add_entity(Health(10))
-	try:
-		world.remove_components_by_component_constructors_from_entity(0,Armor)
-	except Exception as err:
-		# err
-		pass
+	print(world.do_components_exist(Armor)==False)
+
+
+	""" 
+	 I NEED TO RUN A CHECK ON ALL CODE USING `not component_constructor in self.component_constructor_to_entities`
+	   """
 
 """ 
 ECS Limitations/Specs:

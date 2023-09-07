@@ -225,6 +225,35 @@ class TestWorld(unittest.TestCase):
 		except Exception as err:
 			self.assertEqual(str(err) == "ERROR: component_constructor `<class '__main__.Armor'>` does NOT exist!",True)
 	
+	def test_do_components_exist(self):
+		world = World()
+		self.assertEqual(world.do_components_exist(Armor)==False,True)
+
+		world = World()
+		world.add_entity(Health(1))
+		self.assertEqual(world.do_components_exist(Armor)==False,True)
+
+		world = World()
+		world.add_entity(Armor(1))
+		self.assertEqual(world.do_components_exist(Armor)==True,True)
+		
+		world = World()
+		world.add_entity(Armor(1))
+		world.remove_components_by_component_constructors_from_entity(0,Armor)
+		self.assertEqual(world.do_components_exist(Armor)==False,True)
+
+		world = World()
+		world.add_entity(Armor(1))
+		world.remove_components_by_component_constructors_from_entity(0,Armor)
+		world.add_component_instances_to_entity(0,Armor(0))
+		self.assertEqual(world.do_components_exist(Armor)==True,True)
+
+		world = World()
+		world.add_entity(Armor(1))
+		world.remove_components_by_component_constructors_from_entity(0,Armor)
+		world.add_component_instances_to_entity(0,Health(0))
+		self.assertEqual(world.do_components_exist(Armor)==False,True)
+
 if __name__ == "__main__":
 	unittest.main()
 		# world = World()
