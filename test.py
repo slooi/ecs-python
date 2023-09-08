@@ -279,7 +279,7 @@ class TestWorld(unittest.TestCase):
 		h = Health(1)
 		world.add_entity(h)
 		world.stage_remove_component_instances_from_entity(0,h)
-		print(len(world.staged_removal_components)==1)
+		print(len(world.staged_removal_components_to_entity.keys())==1)
 
 
 	def test_stage_remove_components_by_component_constructors_from_entity(self):
@@ -310,25 +310,25 @@ class TestWorld(unittest.TestCase):
 		world = World()
 		world.add_entity(Armor(1))
 		world.stage_remove_components_by_component_constructors_from_entity(0,Armor)
-		self.assertEquals(len(world.staged_removal_components) == 1,True)
+		self.assertEquals(len(world.staged_removal_components_to_entity.keys()) == 1,True)
 
 		world = World()
 		world.add_entity(Armor(1))
 		world.add_entity(Armor(1))
 		world.stage_remove_components_by_component_constructors_from_entity(0,Armor)
-		self.assertEquals(len(world.staged_removal_components) == 1,True)
+		self.assertEquals(len(world.staged_removal_components_to_entity.keys()) == 1,True)
 
 		world = World()
 		world.add_entity(Armor(1),Armor(1))
 		world.add_entity(Armor(1))
 		world.stage_remove_components_by_component_constructors_from_entity(0,Armor)
-		self.assertEquals(len(world.staged_removal_components) == 2,True)
+		self.assertEquals(len(world.staged_removal_components_to_entity.keys()) == 2,True)
 
 		world = World()
 		world.add_entity(Health(1),Armor(1))
 		world.add_entity(Armor(1))
 		world.stage_remove_components_by_component_constructors_from_entity(0,Health)
-		self.assertEquals(len(world.staged_removal_components) == 1,True)
+		self.assertEquals(len(world.staged_removal_components_to_entity.keys()) == 1,True)
 
 	def test_stage_remove_components_by_component_constructors_from_all_entities(self):
 		world = World()
@@ -351,19 +351,19 @@ class TestWorld(unittest.TestCase):
 		world = World()
 		world.add_entity(Health(1))
 		world.stage_remove_components_by_component_constructors_from_all_entities(Health)
-		self.assertEqual(len(world.staged_removal_components) == 1,True)
+		self.assertEqual(len(world.staged_removal_components_to_entity.keys()) == 1,True)
 
 		
 		world = World()
 		world.add_entity(Health(1),Health(1))
 		world.stage_remove_components_by_component_constructors_from_all_entities(Health)
-		self.assertEqual(len(world.staged_removal_components) == 2,True)
+		self.assertEqual(len(world.staged_removal_components_to_entity.keys()) == 2,True)
 		
 		world = World()
 		world.add_entity(Health(1),Armor(1))
 		world.stage_remove_components_by_component_constructors_from_all_entities(Health)
 		world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
-		self.assertEqual(len(world.staged_removal_components) == 2,True)
+		self.assertEqual(len(world.staged_removal_components_to_entity.keys()) == 2,True)
 		
 		world = World()
 		world.add_entity(Health(1),Armor(1))

@@ -66,7 +66,7 @@ class World():
 		self.entity_to_component_dict : Dict[int,Dict[Type[Component],List[Component]]] = {} # Note that entities can have multiple of the SAME component. Note we are using List[Component] not Set[Component] or Tuple[Component], as tuple is constant and set does NOT preserve order component was added
 		self.component_constructor_to_entities : Dict[Type[Component],Set[int]] = {}
 
-		self.staged_removal_components : Set[Component] = set()
+		self.staged_removal_components_to_entity : Dict[Component,int] = {}
 
 	# #########################################################
 	# 					ENTITIES
@@ -197,6 +197,10 @@ class World():
 		if not entity in self.entity_to_component_dict:
 			raise Exception("ERROR: `entity` does not exist in `self.entity_to_component_dict`!")
 		
+		# 0.05 Check for no duplicates
+		if not len(components) == len(set(components)):
+			raise Exception("ERROR: You can NOT specify the same component multiple times!")
+
 		# 0.1 Check components actually exist on entity
 		for component in components:
 			component_constructor = type(component)
@@ -208,13 +212,19 @@ class World():
 				raise Exception("ERROR: parameter/component of `remove_components_from_entity` must be an instance already assigned to the entity! Do not instantiate another component then pass it through as an argument!")
 		
 		# 1.0 Add component into staged
-		self.staged_removal_components = self.staged_removal_components.union(components)
+		for component in components:
+			self.staged_removal_components_to_entity[component] = entity
+			#  = self.staged_removal_components.union(components)
 
 
 	def stage_remove_components_by_component_constructors_from_entity(self,entity:int,*component_constructors:Type[Component]) -> None:
 		# 0.0 check if entity exists
 		if not entity in self.entity_to_component_dict:
 			raise Exception(f"ERROR: entity `{entity}` does NOT exist!")
+		
+		# 0.05 Check for no duplicates
+		if not len(component_constructors) == len(set(component_constructors)):
+			raise Exception("ERROR: You can NOT specify the same component_constructors multiple times!")
 		
 		# 0.1 Iterate over all component_constructors and check
 		for component_constructor in component_constructors:
@@ -226,12 +236,13 @@ class World():
 
 		# 1.0 Add relevant components into local set
 		# 1.1 Collect all instances of component_constructors from entity
-		local_staged_removal_components:Set[Component] = set()
+		local_staged_removal_components:List[Component] = []
 		for component_constructor in component_constructors:
-			local_staged_removal_components = local_staged_removal_components.union(self.entity_to_component_dict[entity][component_constructor])   #.add(*)
+			local_staged_removal_components.extend(self.entity_to_component_dict[entity][component_constructor])   #.add(*)
 			
 		# 2.0 Update staged
-		self.staged_removal_components = self.staged_removal_components.union(local_staged_removal_components)
+		for component in local_staged_removal_components:
+			self.staged_removal_components_to_entity[component] = entity
 
 		
 	def stage_remove_components_by_component_constructors_from_all_entities(self,*component_constructors:Type[Component]) -> None:
@@ -243,20 +254,21 @@ class World():
 			if len(self.component_constructor_to_entities[component_constructor]) == 0:
 				raise Exception(f"ERROR: `{component_constructor}` len(self.component_constructor_to_entities[component_constructor]) == 0")
 			
+		# 0.05 Check for no duplicates
+		if not len(component_constructors) == len(set(component_constructors)):
+			raise Exception("ERROR: You can NOT specify the same component_constructors multiple times!")
 
 		# 1.0 Collect all component instances into a set
-		local_staged_removal_components:Set[Component] = set()
 		for component_constructor in component_constructors:
 			# 1.1 Get entities with component_constructors
 			entity_set = self.component_constructor_to_entities[component_constructor]
 
 			# 1.2 Using entities, find the actual component instances using component_constructor
 			for entity in entity_set:
-				local_staged_removal_components = local_staged_removal_components.union(self.entity_to_component_dict[entity][component_constructor])
-
-
-		# 2.0 Update staged 
-		self.staged_removal_components = self.staged_removal_components.union(local_staged_removal_components)
+				component_list = self.entity_to_component_dict[entity][component_constructor]
+				for component in component_list:
+					# 2.0 Update staged 
+					self.staged_removal_components_to_entity[component] = entity
 
 
 
@@ -364,6 +376,29 @@ class World():
 		for system in self.systems:
 			system.update(self)
 
+		self._remove_staged_components()
+
+	# #########################################################
+	# 					Private Methods
+	# #########################################################
+
+	# def _remove_staged_components(self):
+	# 	# HUGE POTENTIAL FOR OPTIMIZATION
+
+
+	# 	# 1.0 Iterate over all self.staged_removal_components
+	# 	for component in self.staged_removal_components:
+	# 		# 1.1 Remove from self.component_constructor_to_entities
+	# 		# 1.11 Get type
+	# 		component_constructor =  type(component)
+	# 		entity_set = self.component_constructor_to_entities[component_constructor]
+
+	# 		# Iterate over all the entities which have the component_constructor to find ONE COMPONENT that one of the entities have..... T-T so inefficient
+	# 		for entity in entity_set:
+	# 			 self.component_constructor_to_entities[]
+
+			# 1.2 Remove from self.entities_to_component_dict
+		
 	# #########################################################
 	# 					QUERIES
 	# #########################################################
