@@ -50,26 +50,6 @@ T7 = TypeVar("T7", bound=Component)
 T8 = TypeVar("T8", bound=Component)
 T9 = TypeVar("T9", bound=Component)
 T10 = TypeVar("T10", bound=Component)
-T11 = TypeVar("T11", bound=Component)
-T12 = TypeVar("T12", bound=Component)
-T13 = TypeVar("T13", bound=Component)
-T14 = TypeVar("T14", bound=Component)
-T15 = TypeVar("T15", bound=Component)
-T16 = TypeVar("T16", bound=Component)
-T17 = TypeVar("T17", bound=Component)
-T18 = TypeVar("T18", bound=Component)
-T19 = TypeVar("T19", bound=Component)
-T20 = TypeVar("T20", bound=Component)
-T21 = TypeVar("T21", bound=Component)
-T22 = TypeVar("T22", bound=Component)
-T23 = TypeVar("T23", bound=Component)
-T24 = TypeVar("T24", bound=Component)
-T25 = TypeVar("T25", bound=Component)
-T26 = TypeVar("T26", bound=Component)
-T27 = TypeVar("T27", bound=Component)
-T28 = TypeVar("T28", bound=Component)
-T29 = TypeVar("T29", bound=Component)
-T30 = TypeVar("T30", bound=Component)
 
 ##############################################################################
 # 						WORLD
@@ -83,7 +63,7 @@ class World():
 		
 		self.entity_counter : int = 0
 		self.systems : Tuple[System,...] = systems
-		self.entity_to_component_dict : Dict[int,Dict[Type[Component],List[Component]]] = {} # Note that entities can have multiple of the SAME component
+		self.entity_to_component_dict : Dict[int,Dict[Type[Component],List[Component]]] = {} # Note that entities can have multiple of the SAME component. Note we are using List[Component] not Set[Component] or Tuple[Component], as tuple is constant and set does NOT preserve order component was added
 		self.component_constructor_to_entities : Dict[Type[Component],Set[int]] = {}
 
 		self.staged_removal_components : Set[Component] = set()
@@ -228,8 +208,8 @@ class World():
 				raise Exception("ERROR: parameter/component of `remove_components_from_entity` must be an instance already assigned to the entity! Do not instantiate another component then pass it through as an argument!")
 		
 		# 1.0 Add component into staged
-		for component in components:
-			self.staged_removal_components.add(component)
+		self.staged_removal_components = self.staged_removal_components.union(components)
+
 
 	def stage_remove_components_by_component_constructors_from_entity(self,entity:int,*component_constructors:Type[Component]) -> None:
 		# 0.0 check if entity exists
@@ -245,15 +225,39 @@ class World():
 		
 
 		# 1.0 Add relevant components into local set
+		# 1.1 Collect all instances of component_constructors from entity
 		local_staged_removal_components:Set[Component] = set()
 		for component_constructor in component_constructors:
 			local_staged_removal_components = local_staged_removal_components.union(self.entity_to_component_dict[entity][component_constructor])   #.add(*)
 			
-		# 1.2 Remove all instances of component_constructors from entty in self.component_constructor_to_entities
+		# 2.0 Update staged
 		self.staged_removal_components = self.staged_removal_components.union(local_staged_removal_components)
 
 		
-	# def stage_remove_components_by_component_constructors_from_all_entities(self,*component_constructors:Type[Component]) -> Set[int]:
+	def stage_remove_components_by_component_constructors_from_all_entities(self,*component_constructors:Type[Component]) -> None:
+		# 0.0 Check component_constructors if exists
+		for component_constructor in component_constructors:
+			if not component_constructor in self.component_constructor_to_entities:
+				raise Exception(f"ERROR: component_constructor `{component_constructor}` NOT in component_constructor_to_entities!")
+				# Note, but there might not be any entities, just an empty list....
+			if len(self.component_constructor_to_entities[component_constructor]) == 0:
+				raise Exception(f"ERROR: `{component_constructor}` len(self.component_constructor_to_entities[component_constructor]) == 0")
+			
+
+		# 1.0 Collect all component instances into a set
+		local_staged_removal_components:Set[Component] = set()
+		for component_constructor in component_constructors:
+			# 1.1 Get entities with component_constructors
+			entity_set = self.component_constructor_to_entities[component_constructor]
+
+			# 1.2 Using entities, find the actual component instances using component_constructor
+			for entity in entity_set:
+				local_staged_removal_components = local_staged_removal_components.union(self.entity_to_component_dict[entity][component_constructor])
+
+
+		# 2.0 Update staged 
+		self.staged_removal_components = self.staged_removal_components.union(local_staged_removal_components)
+
 
 
 	def remove_component_instances_from_entity(self,entity:int,*components:Component) -> None:
@@ -334,6 +338,9 @@ class World():
 			if not component_constructor in self.component_constructor_to_entities:
 				# if DEBUGGING_MODE:  # !@#!@#!@#!@#!@# REMOVE!
 				raise Exception(f"ERROR: {component_constructor} does NOT exist in self.component_constructor_to_entities!")
+				# Note, but there might not be any entities, just an empty list....
+			if len(self.component_constructor_to_entities[component_constructor]) == 0:
+				raise Exception(f"ERROR: `{component_constructor}` len(self.component_constructor_to_entities[component_constructor]) == 0")
 				# else:
 				# 	continue
 
@@ -407,7 +414,8 @@ class World():
 		for component_constructor in component_constructors:
 			if not component_constructor in self.component_constructor_to_entities:
 				raise Exception(f"ERROR: component_constructor `{component_constructor}` does NOT exist in self.component_constructor_to_entities. You can not `view` it!") 
-
+			if len(self.component_constructor_to_entities[component_constructor]) == 0:
+				raise Exception(f"ERROR: `{component_constructor}` len(self.component_constructor_to_entities[component_constructor]) == 0")
 		
 
 		# 1.0 Create entity sets belonging to each of the component_constructors
@@ -463,7 +471,8 @@ class World():
 			for component_constructor in component_constructors:
 				if not component_constructor in self.component_constructor_to_entities:
 					raise Exception(f"ERROR: component_constructor `{component_constructor}` does NOT exist!")
-
+				if len(self.component_constructor_to_entities[component_constructor]) == 0:
+					raise Exception(f"ERROR: `{component_constructor}` len(self.component_constructor_to_entities[component_constructor]) == 0")
 			# 1.0
 			# 1.1 Check i  
 			return tuple((self.entity_to_component_dict[entity][component_constructor]) for component_constructor in component_constructors)
@@ -548,9 +557,10 @@ if __name__ == "__main__":
 			self.value:float=value
 
 
-	""" 
-	 I NEED TO RUN A CHECK ON ALL CODE USING `not component_constructor in self.component_constructor_to_entities`
-	   """
+	
+""" 
+	I NEED TO RUN A CHECK ON ALL CODE USING `not component_constructor in self.component_constructor_to_entities`
+	"""
 
 """ 
 ECS Limitations/Specs:
