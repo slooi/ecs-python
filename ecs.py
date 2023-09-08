@@ -86,6 +86,8 @@ class World():
 		self.entity_to_component_dict : Dict[int,Dict[Type[Component],List[Component]]] = {} # Note that entities can have multiple of the SAME component
 		self.component_constructor_to_entities : Dict[Type[Component],Set[int]] = {}
 
+		self.staged_removal_components : Set[Component] = set()
+
 	# #########################################################
 	# 					ENTITIES
 	# #########################################################
@@ -205,6 +207,54 @@ class World():
 				component_dict[component_constructor] = []
 			component_dict[component_constructor].append(component)
 
+	def stage_remove_component_instances_from_entity(self,entity:int,*components:Component) -> None:
+		# Removes component(s) from entity
+		""" 
+		Note: Remember that you can have multiple components of the same type. 
+		"""
+		
+		# 0.0 Check entity exists
+		if not entity in self.entity_to_component_dict:
+			raise Exception("ERROR: `entity` does not exist in `self.entity_to_component_dict`!")
+		
+		# 0.1 Check components actually exist on entity
+		for component in components:
+			component_constructor = type(component)
+
+
+			if not component_constructor in self.entity_to_component_dict[entity]:
+				raise Exception("ERROR: parameter/component constructor supplied does NOT exist on this entity!")
+			if not component in self.entity_to_component_dict[entity][component_constructor]:
+				raise Exception("ERROR: parameter/component of `remove_components_from_entity` must be an instance already assigned to the entity! Do not instantiate another component then pass it through as an argument!")
+		
+		# 1.0 Add component into staged
+		for component in components:
+			self.staged_removal_components.add(component)
+
+	def stage_remove_components_by_component_constructors_from_entity(self,entity:int,*component_constructors:Type[Component]) -> None:
+		# 0.0 check if entity exists
+		if not entity in self.entity_to_component_dict:
+			raise Exception(f"ERROR: entity `{entity}` does NOT exist!")
+		
+		# 0.1 Iterate over all component_constructors and check
+		for component_constructor in component_constructors:
+			if not component_constructor in self.entity_to_component_dict[entity]:
+				raise Exception(f"ERROR: component_constructor {component_constructor} does not exist in self.entity_to_component_dict[entity]!")
+			if len(self.entity_to_component_dict[entity][component_constructor]) == 0:
+				raise Exception(f"ERROR: component_constructor `{component_constructor}` list on entity `{entity}` is 0!")
+		
+
+		# 1.0 Add relevant components into local set
+		local_staged_removal_components:Set[Component] = set()
+		for component_constructor in component_constructors:
+			local_staged_removal_components = local_staged_removal_components.union(self.entity_to_component_dict[entity][component_constructor])   #.add(*)
+			
+		# 1.2 Remove all instances of component_constructors from entty in self.component_constructor_to_entities
+		self.staged_removal_components = self.staged_removal_components.union(local_staged_removal_components)
+
+		
+	# def stage_remove_components_by_component_constructors_from_all_entities(self,*component_constructors:Type[Component]) -> Set[int]:
+
 
 	def remove_component_instances_from_entity(self,entity:int,*components:Component) -> None:
 		# Removes component(s) from entity
@@ -223,8 +273,7 @@ class World():
 
 			if not component_constructor in self.entity_to_component_dict[entity]:
 				raise Exception("ERROR: parameter/component constructor supplied does NOT exist on this entity!")
-			component_list = self.entity_to_component_dict[entity][component_constructor]
-			if not component in component_list:
+			if not component in self.entity_to_component_dict[entity][component_constructor]:
 				raise Exception("ERROR: parameter/component of `remove_components_from_entity` must be an instance already assigned to the entity! Do not instantiate another component then pass it through as an argument!")
 		
 
@@ -270,6 +319,8 @@ class World():
 			# 1.1 Remove all instances of component_constructors from entity in self.entity_to_component_constructor_dict
 			if not component_constructor in self.entity_to_component_dict[entity]:
 				raise Exception(f"ERROR: component_constructor {component_constructor} does not exist in self.entity_to_component_dict[entity]!")
+			if len(self.entity_to_component_dict[entity][component_constructor]) == 0:
+				raise Exception(f"ERROR: component_constructor `{component_constructor}` list is 0!")
 			self.entity_to_component_dict[entity][component_constructor] = []
 
 			# 1.2 Remove all instances of component_constructors from entty in self.component_constructor_to_entities
@@ -495,9 +546,6 @@ if __name__ == "__main__":
 		def __init__(self, value:float) -> None:
 			super().__init__()
 			self.value:float=value
-
-	world = World()
-	print(world.do_components_exist(Armor)==False)
 
 
 	""" 
