@@ -254,6 +254,82 @@ class TestWorld(unittest.TestCase):
 		world.add_component_instances_to_entity(0,Health(0))
 		self.assertEqual(world.do_components_exist(Armor)==False,True)
 
+	def test_stage_remove_component_instances_from_entity(self):
+		world = World()
+		try:
+			world.stage_remove_component_instances_from_entity(0,Armor(1))
+		except Exception as err:
+			self.assertEqual(True,True)
+
+		world = World()
+		world.add_entity(Health(1))
+		try:
+			world.stage_remove_component_instances_from_entity(0,Armor(1))
+		except Exception as err:
+			self.assertEqual(True,True)
+
+		world = World()
+		world.add_entity(Health(1))
+		try:
+			world.stage_remove_component_instances_from_entity(0,Health(1))
+		except Exception as err:
+			self.assertEqual(True,True)
+
+		world = World()
+		h = Health(1)
+		world.add_entity(h)
+		world.stage_remove_component_instances_from_entity(0,h)
+		print(len(world.staged_removal_components)==1)
+
+
+	def test_stage_remove_components_by_component_constructors_from_entity(self):
+	
+		world = World()
+		try:
+			world.stage_remove_components_by_component_constructors_from_entity(0,Health)
+		except Exception as err:
+			self.assertEquals(True,True)
+		# entity err
+
+		world = World()
+		world.add_entity(Armor(1))
+		try:
+			world.stage_remove_components_by_component_constructors_from_entity(0,Health)
+		except Exception as err:
+			self.assertEquals(True,True)
+		# health err
+
+		world = World()
+		world.add_entity(Armor(1))
+		world.remove_components_by_component_constructors_from_all_entities(Armor)
+		try:
+			world.stage_remove_components_by_component_constructors_from_entity(0,Armor)
+		except Exception as err:
+			self.assertEquals(True,True)
+
+		world = World()
+		world.add_entity(Armor(1))
+		world.stage_remove_components_by_component_constructors_from_entity(0,Armor)
+		self.assertEquals(len(world.staged_removal_components) == 1,True)
+
+		world = World()
+		world.add_entity(Armor(1))
+		world.add_entity(Armor(1))
+		world.stage_remove_components_by_component_constructors_from_entity(0,Armor)
+		self.assertEquals(len(world.staged_removal_components) == 1,True)
+
+		world = World()
+		world.add_entity(Armor(1),Armor(1))
+		world.add_entity(Armor(1))
+		world.stage_remove_components_by_component_constructors_from_entity(0,Armor)
+		self.assertEquals(len(world.staged_removal_components) == 2,True)
+
+		world = World()
+		world.add_entity(Health(1),Armor(1))
+		world.add_entity(Armor(1))
+		world.stage_remove_components_by_component_constructors_from_entity(0,Health)
+		self.assertEquals(len(world.staged_removal_components) == 1,True)
+
 if __name__ == "__main__":
 	unittest.main()
 		# world = World()
