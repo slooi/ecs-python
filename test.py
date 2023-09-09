@@ -288,7 +288,7 @@ class TestWorld(unittest.TestCase):
 		try:
 			world.stage_remove_components_by_component_constructors_from_entity(0,Health)
 		except Exception as err:
-			self.assertEquals(True,True)
+			self.assertEqual(True,True)
 		# entity err
 
 		world = World()
@@ -296,7 +296,7 @@ class TestWorld(unittest.TestCase):
 		try:
 			world.stage_remove_components_by_component_constructors_from_entity(0,Health)
 		except Exception as err:
-			self.assertEquals(True,True)
+			self.assertEqual(True,True)
 		# health err
 
 		world = World()
@@ -305,30 +305,30 @@ class TestWorld(unittest.TestCase):
 		try:
 			world.stage_remove_components_by_component_constructors_from_entity(0,Armor)
 		except Exception as err:
-			self.assertEquals(True,True)
+			self.assertEqual(True,True)
 
 		world = World()
 		world.add_entity(Armor(1))
 		world.stage_remove_components_by_component_constructors_from_entity(0,Armor)
-		self.assertEquals(len(world.staged_removal_components_to_entity.keys()) == 1,True)
+		self.assertEqual(len(world.staged_removal_components_to_entity.keys()) == 1,True)
 
 		world = World()
 		world.add_entity(Armor(1))
 		world.add_entity(Armor(1))
 		world.stage_remove_components_by_component_constructors_from_entity(0,Armor)
-		self.assertEquals(len(world.staged_removal_components_to_entity.keys()) == 1,True)
+		self.assertEqual(len(world.staged_removal_components_to_entity.keys()) == 1,True)
 
 		world = World()
 		world.add_entity(Armor(1),Armor(1))
 		world.add_entity(Armor(1))
 		world.stage_remove_components_by_component_constructors_from_entity(0,Armor)
-		self.assertEquals(len(world.staged_removal_components_to_entity.keys()) == 2,True)
+		self.assertEqual(len(world.staged_removal_components_to_entity.keys()) == 2,True)
 
 		world = World()
 		world.add_entity(Health(1),Armor(1))
 		world.add_entity(Armor(1))
 		world.stage_remove_components_by_component_constructors_from_entity(0,Health)
-		self.assertEquals(len(world.staged_removal_components_to_entity.keys()) == 1,True)
+		self.assertEqual(len(world.staged_removal_components_to_entity.keys()) == 1,True)
 
 	def test_stage_remove_components_by_component_constructors_from_all_entities(self):
 		world = World()
@@ -373,6 +373,26 @@ class TestWorld(unittest.TestCase):
 			world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
 		except Exception as err:
 			self.assertEqual(True,True)
+
+	def test__remove_staged_components(self):
+		world = World()
+		world.add_entity(Armor(1))
+		world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
+		world.update()
+		self.assertEqual(len(world.staged_removal_components_to_entity)==0,True)
+		self.assertEqual(len(world.component_constructor_to_entities[Armor])==0,True)
+		self.assertEqual(len(world.entity_to_component_dict[0][Armor])==0,True)
+
+		world = World()
+		world.add_entity(Armor(1))
+		world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
+		world.update()
+		world.add_entity(Armor(1))
+		world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
+		world.update()
+		self.assertEqual(len(world.staged_removal_components_to_entity)==0,True)
+		self.assertEqual(len(world.component_constructor_to_entities[Armor])==0,True)
+		self.assertEqual(len(world.entity_to_component_dict[0][Armor])==0,True)
 
 if __name__ == "__main__":
 	unittest.main()

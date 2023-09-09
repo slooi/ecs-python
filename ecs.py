@@ -371,33 +371,38 @@ class World():
 	# #########################################################
 	# 					UPDATE
 	# #########################################################
-	def update(self):
+	def update(self) -> None:
 		# Iterate over all systems
 		for system in self.systems:
 			system.update(self)
 
+		# Remove components staged for removal
 		self._remove_staged_components()
 
 	# #########################################################
 	# 					Private Methods
 	# #########################################################
 
-	# def _remove_staged_components(self):
-	# 	# HUGE POTENTIAL FOR OPTIMIZATION
+	def _remove_staged_components(self) -> None:
+		# HUGE POTENTIAL FOR OPTIMIZATION
 
 
-	# 	# 1.0 Iterate over all self.staged_removal_components
-	# 	for component in self.staged_removal_components:
-	# 		# 1.1 Remove from self.component_constructor_to_entities
-	# 		# 1.11 Get type
-	# 		component_constructor =  type(component)
-	# 		entity_set = self.component_constructor_to_entities[component_constructor]
+		# 1.0 Iterate over all self.staged_removal_components
+		for (component, entity) in self.staged_removal_components_to_entity.items():
+			# 1.1 Get type
+			component_constructor =  type(component)
 
-	# 		# Iterate over all the entities which have the component_constructor to find ONE COMPONENT that one of the entities have..... T-T so inefficient
-	# 		for entity in entity_set:
-	# 			 self.component_constructor_to_entities[]
+			# 1.2 Remove from self.component_constructor_to_entities
+			self.component_constructor_to_entities[component_constructor].remove(entity)
 
-			# 1.2 Remove from self.entities_to_component_dict
+			# 1.3 Remove from self.entity_to_component_obj
+			try:
+				self.entity_to_component_dict[entity][component_constructor].remove(component)
+			except ValueError as err:
+				raise Exception(f"ERROR: {err}. Component was removed from else where. THIS CODE SHOULD NEVER RUN!")
+			
+		# 2.0 Clear
+		self.staged_removal_components_to_entity = {}
 		
 	# #########################################################
 	# 					QUERIES
@@ -532,18 +537,6 @@ class World():
 	@overload
 	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4], List[T5], List[T6]]]:
 		...
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4], List[T5], List[T6], List[T7]]]:
-		...
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4], List[T5], List[T6], List[T7], List[T8]]]:
-		...
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4], List[T5], List[T6], List[T7], List[T8], List[T9]]]:
-		...
-	@overload
-	def view(self, s1: Type[T1], s2: Type[T2], s3: Type[T3], s4: Type[T4], s5: Type[T5], s6: Type[T6], s7: Type[T7], s8: Type[T8], s9: Type[T9], s10: Type[T10], /) -> List[tuple[int, List[T1], List[T2], List[T3], List[T4], List[T5], List[T6], List[T7], List[T8], List[T9], List[T10]]]:
-		...
 	def view(self,*component_constructors:Type[Component]) -> Any:
 
 		# 1.0 Get all entities with these component
@@ -590,7 +583,9 @@ if __name__ == "__main__":
 		def __init__(self, value:float) -> None:
 			super().__init__()
 			self.value:float=value
+	
 
+	""""""
 
 	
 """ 
