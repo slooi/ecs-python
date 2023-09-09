@@ -187,6 +187,8 @@ class World():
 				component_dict[component_constructor] = []
 			component_dict[component_constructor].append(component)
 
+
+
 	def stage_remove_component_instances_from_entity(self,entity:int,*components:Component) -> None:
 		# Removes component(s) from entity
 		""" 
@@ -216,7 +218,6 @@ class World():
 			self.staged_removal_components_to_entity[component] = entity
 			#  = self.staged_removal_components.union(components)
 
-
 	def stage_remove_components_by_component_constructors_from_entity(self,entity:int,*component_constructors:Type[Component]) -> None:
 		# 0.0 check if entity exists
 		if not entity in self.entity_to_component_dict:
@@ -244,7 +245,6 @@ class World():
 		for component in local_staged_removal_components:
 			self.staged_removal_components_to_entity[component] = entity
 
-		
 	def stage_remove_components_by_component_constructors_from_all_entities(self,*component_constructors:Type[Component]) -> None:
 		# 0.0 Check component_constructors if exists
 		for component_constructor in component_constructors:
@@ -323,7 +323,6 @@ class World():
 
 			component_list = self.entity_to_component_dict[entity][component_constructor]
 			component_list.remove(component)
-
 
 	def remove_components_by_component_constructors_from_entity(self,entity:int,*component_constructors:Type[Component]) -> None:
 		# 0.0 check if entity exists
