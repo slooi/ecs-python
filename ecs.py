@@ -380,7 +380,7 @@ class World():
 		self._remove_staged_components()
 
 	# #########################################################
-	# 					Private Methods
+	# 				STAGED REMOVAL
 	# #########################################################
 
 	def _remove_staged_components(self) -> None:
@@ -393,11 +393,18 @@ class World():
 			component_constructor =  type(component)
 
 			# 1.2 Remove from self.component_constructor_to_entities
-			self.component_constructor_to_entities[component_constructor].remove(entity)
+			try:
+				self.component_constructor_to_entities[component_constructor].remove(entity)
+				if len(self.component_constructor_to_entities[component_constructor]) == 0:
+					del self.component_constructor_to_entities[component_constructor]
+			except Exception as err:
+				raise Exception(f"ERROR: {err}. THIS CODE SHOULD NEVER RUN!")
 
 			# 1.3 Remove from self.entity_to_component_obj
 			try:
 				self.entity_to_component_dict[entity][component_constructor].remove(component)
+				if len(self.entity_to_component_dict[entity][component_constructor]) == 0:
+					del self.entity_to_component_dict[entity]
 			except ValueError as err:
 				raise Exception(f"ERROR: {err}. Component was removed from else where. THIS CODE SHOULD NEVER RUN!")
 			

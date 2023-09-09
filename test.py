@@ -380,8 +380,8 @@ class TestWorld(unittest.TestCase):
 		world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
 		world.update()
 		self.assertEqual(len(world.staged_removal_components_to_entity)==0,True)
-		self.assertEqual(len(world.component_constructor_to_entities[Armor])==0,True)
-		self.assertEqual(len(world.entity_to_component_dict[0][Armor])==0,True)
+		self.assertEqual(world.component_constructor_to_entities,{})
+		self.assertEqual(world.entity_to_component_dict,{})
 
 		world = World()
 		world.add_entity(Armor(1))
@@ -391,8 +391,8 @@ class TestWorld(unittest.TestCase):
 		world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
 		world.update()
 		self.assertEqual(len(world.staged_removal_components_to_entity)==0,True)
-		self.assertEqual(len(world.component_constructor_to_entities[Armor])==0,True)
-		self.assertEqual(len(world.entity_to_component_dict[0][Armor])==0,True)
+		self.assertEqual(world.component_constructor_to_entities,{})
+		self.assertEqual(world.entity_to_component_dict,{})
 
 if __name__ == "__main__":
 	unittest.main()
