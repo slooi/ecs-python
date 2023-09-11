@@ -381,7 +381,7 @@ class TestWorld(unittest.TestCase):
 		world.update()
 		self.assertEqual(len(world.staged_removal_components_to_entity)==0,True)
 		self.assertEqual(world.component_constructor_to_entities,{})
-		self.assertEqual(world.entity_to_component_dict,{})
+		self.assertEqual(world.entity_to_component_dict,{0:{}})
 
 		world = World()
 		world.add_entity(Armor(1))
@@ -392,7 +392,7 @@ class TestWorld(unittest.TestCase):
 		world.update()
 		self.assertEqual(len(world.staged_removal_components_to_entity)==0,True)
 		self.assertEqual(world.component_constructor_to_entities,{})
-		self.assertEqual(world.entity_to_component_dict,{})
+		self.assertEqual(world.entity_to_component_dict,{0:{},1:{}})
 
 if __name__ == "__main__":
 	unittest.main()
