@@ -67,6 +67,7 @@ class World():
 		self.component_constructor_to_entities : Dict[Type[Component],Set[int]] = {}
 
 		self.staged_removal_components_to_entity : Dict[Component,int] = {}
+		self.newly_added_components_to_entity : Dict[Component,int] = {}
 
 	# #########################################################
 	# 					ENTITIES
@@ -113,6 +114,10 @@ class World():
 			if not component_constructor in self.component_constructor_to_entities:
 				self.component_constructor_to_entities[component_constructor] = set()
 			self.component_constructor_to_entities[component_constructor].add(entity_id)
+
+		# newly_added_components_to_entity
+		for component in components:
+			self.newly_added_components_to_entity[component] = entity_id
 
 		return entity_id
 
@@ -188,6 +193,9 @@ class World():
 			component_dict[component_constructor].append(component)
 
 
+		# newly_added_components_to_entity
+		for component in components:
+			self.newly_added_components_to_entity[component] = entity
 
 	def stage_remove_component_instances_from_entity(self,entity:int,*components:Component) -> None:
 		# Removes component(s) from entity
@@ -375,12 +383,18 @@ class World():
 		for system in self.systems:
 			system.update(self)
 
-		# Remove components staged for removal
+		# Remove components from newly added
+		self._clear_newly_added()
+
+		# Remove components staged for removal and clear staged
 		self._remove_staged_components()
 
 	# #########################################################
-	# 				STAGED REMOVAL
+	# 				CLEAN UP
 	# #########################################################
+
+	def _clear_newly_added(self):
+		self.newly_added_components_to_entity = {}
 
 	def _remove_staged_components(self) -> None:
 		# HUGE POTENTIAL FOR OPTIMIZATION
@@ -402,6 +416,30 @@ class World():
 	# #########################################################
 	# 					QUERIES
 	# #########################################################
+
+	def do_all_components_exist_in_staged_removal(self,*components:Component) -> bool:
+		# 0.0 Checks
+		if not len(components) == len(set(components)):
+			raise Exception(f"ERROR: not len(components) == len(set(component)). Info: {components}") 
+
+
+		# 
+		for component in components:
+			if not component in self.staged_removal_components_to_entity:
+				return False
+		return True
+
+	def do_all_components_exist_in_newly_added(self,*components:Component) -> bool:
+		# 0.0 Checks
+		if not len(components) == len(set(components)):
+			raise Exception(f"ERROR: not len(components) == len(set(component)). Info: {components}") 
+
+
+		# 
+		for component in components:
+			if not component in self.newly_added_components_to_entity:
+				return False
+		return True
 
 	def does_entity_have_all_component_constructors(self,entity:int,*component_constructors:Type[Component]) -> bool:
 		# Note this method is slightly redundant as you could just use `view` instead. However this method is a lot more computationally efficient and more direct at solving its task
@@ -579,7 +617,72 @@ if __name__ == "__main__":
 			super().__init__()
 			self.value:float=value
 	
+	world = World()
+	h = Health(1)
+	world.add_entity(h)
+	print(world.do_all_components_exist_in_newly_added(h)==True)
+	world.update()
+	print(world.do_all_components_exist_in_newly_added(h)==False)
 
+	world = World()
+	h = Health(1)
+	h2 = Health(1)
+	world.add_entity(h)
+	world.add_entity(h2)
+	print(world.do_all_components_exist_in_newly_added(h,h2)==True)
+	world.update()
+	print(world.do_all_components_exist_in_newly_added(h)==False)
+	print(world.do_all_components_exist_in_newly_added(h2)==False)
+	print(world.do_all_components_exist_in_newly_added(h,h2)==False)
+
+	world = World()
+	h = Health(1)
+	h2 = Health(1)
+	h3 = Health(2)
+	world.add_entity(h)
+	world.add_component_instances_to_entity(0,h3)
+	world.add_entity(h2)
+	print(world.do_all_components_exist_in_newly_added(h3)==True)
+	print(world.do_all_components_exist_in_newly_added(h,h2,h3)==True)
+	world.update()
+	print(world.do_all_components_exist_in_newly_added(h3)==False)
+	print(world.do_all_components_exist_in_newly_added(h2)==False)
+	print(world.do_all_components_exist_in_newly_added(h)==False)
+	print(world.do_all_components_exist_in_newly_added(h3,h2,h)==False)
+
+	# world = World()
+	# h = Health(1)
+	# world.add_entity(h)
+	# world.stage_remove_component_instances_from_entity(0,h)
+	# print(world.do_all_components_exist_in_staged_removal(h)==True)
+	# world.update()
+	# print(world.do_all_components_exist_in_staged_removal(h)==False)
+
+	# world = World()
+	# h = Health(1)
+	# world.add_entity(h)
+	# world.stage_remove_components_by_component_constructors_from_all_entities(Health)
+	# print(world.do_all_components_exist_in_staged_removal(h)==True)
+	# world.update()
+	# print(world.do_all_components_exist_in_staged_removal(h)==False)
+
+	# world = World()
+	# h = Health(1)
+	# world.add_entity(h)
+	# world.stage_remove_components_by_component_constructors_from_entity(0,Health)
+	# print(world.do_all_components_exist_in_staged_removal(h)==True)
+	# world.update()
+	# print(world.do_all_components_exist_in_staged_removal(h)==False)
+	# world = World()
+
+	# h = Health(1)
+	# a = Armor(1)
+	# world.add_entity(h)
+	# world.add_entity(a)
+	# world.stage_remove_components_by_component_constructors_from_entity(0,Health)
+	# print(world.do_all_components_exist_in_staged_removal(h)==True)
+	# world.update()
+	# print(world.do_all_components_exist_in_staged_removal(h)==False)
 	""""""
 
 	
