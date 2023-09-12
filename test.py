@@ -1,5 +1,5 @@
 import unittest
-from ecs import World, Component, System
+from ECS import World, Component, System
 
 
 class Health(Component):
@@ -279,7 +279,7 @@ class TestWorld(unittest.TestCase):
 		h = Health(1)
 		world.add_entity(h)
 		world.stage_remove_component_instances_from_entity(0,h)
-		print(len(world.staged_removal_components_to_entity.keys())==1)
+		print(len(world.staged_removal_components_dict[0][Health])==1)
 
 
 	def test_stage_remove_components_by_component_constructors_from_entity(self):
@@ -310,25 +310,25 @@ class TestWorld(unittest.TestCase):
 		world = World()
 		world.add_entity(Armor(1))
 		world.stage_remove_components_by_component_constructors_from_entity(0,Armor)
-		self.assertEqual(len(world.staged_removal_components_to_entity.keys()) == 1,True)
+		self.assertEqual(len(world.staged_removal_components_dict[0][Armor]) == 1,True)
 
 		world = World()
 		world.add_entity(Armor(1))
 		world.add_entity(Armor(1))
 		world.stage_remove_components_by_component_constructors_from_entity(0,Armor)
-		self.assertEqual(len(world.staged_removal_components_to_entity.keys()) == 1,True)
+		self.assertEqual(len(world.staged_removal_components_dict[0][Armor]) == 1,True)
 
 		world = World()
 		world.add_entity(Armor(1),Armor(1))
 		world.add_entity(Armor(1))
 		world.stage_remove_components_by_component_constructors_from_entity(0,Armor)
-		self.assertEqual(len(world.staged_removal_components_to_entity.keys()) == 2,True)
+		self.assertEqual(len(world.staged_removal_components_dict[0][Armor]) == 2,True)
 
 		world = World()
 		world.add_entity(Health(1),Armor(1))
 		world.add_entity(Armor(1))
 		world.stage_remove_components_by_component_constructors_from_entity(0,Health)
-		self.assertEqual(len(world.staged_removal_components_to_entity.keys()) == 1,True)
+		self.assertEqual(len(world.staged_removal_components_dict[0][Health]) == 1,True)
 
 	def test_stage_remove_components_by_component_constructors_from_all_entities(self):
 		world = World()
@@ -351,19 +351,20 @@ class TestWorld(unittest.TestCase):
 		world = World()
 		world.add_entity(Health(1))
 		world.stage_remove_components_by_component_constructors_from_all_entities(Health)
-		self.assertEqual(len(world.staged_removal_components_to_entity.keys()) == 1,True)
+		self.assertEqual(len(world.staged_removal_components_dict[0][Health]) == 1,True)
 
 		
 		world = World()
 		world.add_entity(Health(1),Health(1))
 		world.stage_remove_components_by_component_constructors_from_all_entities(Health)
-		self.assertEqual(len(world.staged_removal_components_to_entity.keys()) == 2,True)
+		self.assertEqual(len(world.staged_removal_components_dict[0][Health]) == 2,True)
 		
 		world = World()
 		world.add_entity(Health(1),Armor(1))
 		world.stage_remove_components_by_component_constructors_from_all_entities(Health)
 		world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
-		self.assertEqual(len(world.staged_removal_components_to_entity.keys()) == 2,True)
+		self.assertEqual(len(world.staged_removal_components_dict[0][Health]) == 1,True)
+		self.assertEqual(len(world.staged_removal_components_dict[0].keys()) == 2,True)
 		
 		world = World()
 		world.add_entity(Health(1),Armor(1))
@@ -379,7 +380,7 @@ class TestWorld(unittest.TestCase):
 		world.add_entity(Armor(1))
 		world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
 		world.update()
-		self.assertEqual(len(world.staged_removal_components_to_entity)==0,True)
+		self.assertEqual(len(world.staged_removal_components_dict[0][Armor])==1,True)
 		self.assertEqual(world.component_constructor_to_entities,{})
 		self.assertEqual(world.entity_to_component_dict,{0:{}})
 
@@ -390,7 +391,7 @@ class TestWorld(unittest.TestCase):
 		world.add_entity(Armor(1))
 		world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
 		world.update()
-		self.assertEqual(len(world.staged_removal_components_to_entity)==0,True)
+		self.assertEqual(len(world.staged_removal_components_dict)==0,True)
 		self.assertEqual(world.component_constructor_to_entities,{})
 		self.assertEqual(world.entity_to_component_dict,{0:{},1:{}})
 
