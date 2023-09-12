@@ -428,6 +428,41 @@ class TestWorld(unittest.TestCase):
 		self.assertEqual(world.do_all_components_exist_in_newly_added(h)==False,True)
 		self.assertEqual(world.do_all_components_exist_in_newly_added(h3,h2,h)==False,True)
 
+	def test_do_all_components_exist_in_staged_removal(self):
+		world = World()
+		h = Health(1)
+		world.add_entity(h)
+		world.stage_remove_component_instances_from_entity(0,h)
+		self.assertEqual(world.do_all_components_exist_in_staged_removal(h)==True,True)
+		world.update()
+		self.assertEqual(world.do_all_components_exist_in_staged_removal(h)==False,True)
+
+		world = World()
+		h = Health(1)
+		world.add_entity(h)
+		world.stage_remove_components_by_component_constructors_from_all_entities(Health)
+		self.assertEqual(world.do_all_components_exist_in_staged_removal(h)==True,True)
+		world.update()
+		self.assertEqual(world.do_all_components_exist_in_staged_removal(h)==False,True)
+
+		world = World()
+		h = Health(1)
+		world.add_entity(h)
+		world.stage_remove_components_by_component_constructors_from_entity(0,Health)
+		self.assertEqual(world.do_all_components_exist_in_staged_removal(h)==True,True)
+		world.update()
+		self.assertEqual(world.do_all_components_exist_in_staged_removal(h)==False,True)
+		world = World()
+
+		h = Health(1)
+		a = Armor(1)
+		world.add_entity(h)
+		world.add_entity(a)
+		world.stage_remove_components_by_component_constructors_from_entity(0,Health)
+		self.assertEqual(world.do_all_components_exist_in_staged_removal(h)==True,True)
+		world.update()
+		self.assertEqual(world.do_all_components_exist_in_staged_removal(h)==False,True)
+
 if __name__ == "__main__":
 	unittest.main()
 		# world = World()
