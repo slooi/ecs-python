@@ -384,7 +384,7 @@ class World():
 			system.update(self)
 
 		# Remove components from newly added
-		self._clear_newly_added()
+		self.newly_added_components_to_entity = {}
 
 		# Remove components staged for removal and clear staged
 		self._remove_staged_components()
@@ -393,8 +393,6 @@ class World():
 	# 				CLEAN UP
 	# #########################################################
 
-	def _clear_newly_added(self):
-		self.newly_added_components_to_entity = {}
 
 	def _remove_staged_components(self) -> None:
 		# HUGE POTENTIAL FOR OPTIMIZATION
