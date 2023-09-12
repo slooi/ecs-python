@@ -66,8 +66,9 @@ class World():
 		self.entity_to_component_dict : Dict[int,Dict[Type[Component],List[Component]]] = {} # Note that entities can have multiple of the SAME component. Note we are using List[Component] not Set[Component] or Tuple[Component], as tuple is constant and set does NOT preserve order component was added
 		self.component_constructor_to_entities : Dict[Type[Component],Set[int]] = {}
 
-		self.staged_removal_components_to_entity : Dict[Component,int] = {}
-		self.newly_added_components_to_entity : Dict[Component,int] = {}
+		self.staged_removal_counter = 0
+		self.staged_removal_components_to_entity : Tuple[Dict[Type[Component],Set[Component]],Dict[Type[Component],Set[Component]]] = ({},{},)
+		self.newly_added_components_to_entity : Dict[Type[Component],Set[Component]] = {}
 
 	# #########################################################
 	# 					ENTITIES
@@ -117,7 +118,11 @@ class World():
 
 		# newly_added_components_to_entity
 		for component in components:
-			self.newly_added_components_to_entity[component] = entity_id
+			cc = type(component)
+
+			if not cc in self.newly_added_components_to_entity:
+				self.newly_added_components_to_entity[cc] = set()
+			self.newly_added_components_to_entity[cc].add(component)
 
 		return entity_id
 
@@ -195,7 +200,11 @@ class World():
 
 		# newly_added_components_to_entity
 		for component in components:
-			self.newly_added_components_to_entity[component] = entity
+			cc = type(component)
+
+			if not cc in self.newly_added_components_to_entity:
+				self.newly_added_components_to_entity[cc] = set()
+			self.newly_added_components_to_entity[cc].add(component)
 
 	def stage_remove_component_instances_from_entity(self,entity:int,*components:Component) -> None:
 		# Removes component(s) from entity
@@ -223,7 +232,12 @@ class World():
 		
 		# 1.0 Add component into staged
 		for component in components:
-			self.staged_removal_components_to_entity[component] = entity
+			cc = type(component)
+
+			staged_removal = self._get_current_staged_removal()
+			if not cc in staged_removal:
+				staged_removal[cc] = set()
+			staged_removal[cc].add(component)
 			#  = self.staged_removal_components.union(components)
 
 	def stage_remove_components_by_component_constructors_from_entity(self,entity:int,*component_constructors:Type[Component]) -> None:
@@ -251,7 +265,12 @@ class World():
 			
 		# 2.0 Update staged
 		for component in local_staged_removal_components:
-			self.staged_removal_components_to_entity[component] = entity
+			cc = type(component)
+
+			staged_removal = self._get_current_staged_removal()
+			if not cc in staged_removal:
+				staged_removal[cc] = set()
+			staged_removal[cc].add(component)
 
 	def stage_remove_components_by_component_constructors_from_all_entities(self,*component_constructors:Type[Component]) -> None:
 		# 0.0 Check component_constructors if exists
@@ -276,7 +295,12 @@ class World():
 				component_list = self.entity_to_component_dict[entity][component_constructor]
 				for component in component_list:
 					# 2.0 Update staged 
-					self.staged_removal_components_to_entity[component] = entity
+					cc = type(component)
+
+					staged_removal = self._get_current_staged_removal()
+					if not cc in staged_removal:
+						staged_removal[cc] = set()
+					staged_removal[cc].add(component)
 
 
 
@@ -393,23 +417,18 @@ class World():
 	# 				CLEAN UP
 	# #########################################################
 
+	def _get_current_staged_removal(self) -> Dict[Type[Component],Set[Component]]:
+		return self.staged_removal_components_to_entity[self.staged_removal_counter]
+
 
 	def _remove_staged_components(self) -> None:
-		# HUGE POTENTIAL FOR OPTIMIZATION
 
-		for (component, entity) in self.staged_removal_components_to_entity.items():
-			component_constructor = type(component)
-			
-			# remove component. if possible remove the list storing component in enttToCC and entt in CCToEntt  
-			self.entity_to_component_dict[entity][component_constructor].remove(component)
-			if len(self.entity_to_component_dict[entity][component_constructor]) == 0:
-				del self.entity_to_component_dict[entity][component_constructor]
-				self.component_constructor_to_entities[component_constructor].remove(entity)
-				if len(self.component_constructor_to_entities[component_constructor]) == 0:
-					del self.component_constructor_to_entities[component_constructor]
-			
-		# 2.0 Clear
-		self.staged_removal_components_to_entity = {}
+		self.staged_removal_counter += 1 
+		if self.staged_removal_counter > 1:
+			self.staged_removal_counter = 0
+
+		current_staged_removal = self._get_current_staged_removal()
+		current_staged_removal = {}
 		
 	# #########################################################
 	# 					QUERIES
@@ -423,7 +442,8 @@ class World():
 
 		# 
 		for component in components:
-			if not component in self.staged_removal_components_to_entity:
+			cc = type(component)
+			if not component in self._get_current_staged_removal()[cc]:
 				return False
 		return True
 
@@ -435,7 +455,8 @@ class World():
 
 		# 
 		for component in components:
-			if not component in self.newly_added_components_to_entity:
+			cc = type(component)
+			if not component in self.newly_added_components_to_entity[cc]:
 				return False
 		return True
 
