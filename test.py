@@ -388,10 +388,10 @@ class TestWorld(unittest.TestCase):
 		world.add_entity(Armor(1))
 		world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
 		world.update()
-		world.add_entity(Armor(1))
+		world.add_entity(Armor(12))
 		world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
 		world.update()
-		self.assertEqual(len(world.staged_removal_components_dict)==0,True)
+		self.assertEqual(world.staged_removal_components_dict[0],{})
 		self.assertEqual(world.component_constructor_to_entities,{})
 		self.assertEqual(world.entity_to_component_dict,{0:{},1:{}})
 

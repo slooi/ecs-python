@@ -67,9 +67,9 @@ class World():
 		self.component_constructor_to_entities : Dict[Type[Component],Set[int]] = {}
 
 		self.staged_removal_counter = 0
-		self.staged_removal_components_dict : Tuple[Dict[Type[Component],Set[Component]],Dict[Type[Component],Set[Component]]] = ({},{},)
-		self.newly_added_components_dict : Dict[Type[Component],Set[Component]] = {}
+		self.staged_removal_components_dict : List[Dict[Type[Component],Set[Component]]] = [{},{}]
 		self.staged_removal_to_entity : Dict[Component,int] = {}
+		self.newly_added_components_dict : Dict[Type[Component],Set[Component]] = {}
 
 	# #########################################################
 	# 					ENTITIES
@@ -451,8 +451,7 @@ class World():
 		if self.staged_removal_counter > 1:
 			self.staged_removal_counter = 0
 
-		current_staged_removal = self._get_current_staged_removal()
-		current_staged_removal = {}
+		self.staged_removal_components_dict[self.staged_removal_counter] = {}
 
 		self.staged_removal_to_entity = {}
 		
@@ -469,6 +468,8 @@ class World():
 		# 
 		for component in components:
 			cc = type(component)
+			if not cc in self._get_current_staged_removal():
+				return False
 			if not component in self._get_current_staged_removal()[cc]:
 				return False
 		return True
@@ -482,6 +483,8 @@ class World():
 		# 
 		for component in components:
 			cc = type(component)
+			if not cc in self.newly_added_components_dict:
+				return False
 			if not component in self.newly_added_components_dict[cc]:
 				return False
 		return True
