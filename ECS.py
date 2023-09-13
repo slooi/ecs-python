@@ -67,9 +67,11 @@ class World():
 		self.component_constructor_to_entities : Dict[Type[Component],Set[int]] = {}
 
 		self.staged_removal_counter = 0
-		self.staged_removal_components_dict : List[Dict[Type[Component],Set[Component]]] = [{},{}]
-		self.staged_removal_to_entity : Dict[Component,int] = {}
+		self.staged_removal_components_dict : Tuple[Dict[Type[Component],Set[Component]],Dict[Type[Component],Set[Component]]] = ({},{},)
+		self.staged_removal_component_to_entity: Tuple[Dict[Component,int],Dict[Component,int]] = ({},{},)
 		self.newly_added_components_dict : Dict[Type[Component],Set[Component]] = {}
+
+		self.DELETED_VIEW_CHECKED = False
 
 	# #########################################################
 	# 					ENTITIES
@@ -242,7 +244,7 @@ class World():
 				staged_removal[cc] = set()
 			staged_removal[cc].add(component)
 
-			self.staged_removal_to_entity[component] = entity
+			self.staged_removal_component_to_entity[self.staged_removal_counter][component] = entity
 			#  = self.staged_removal_components.union(components)
 
 	def stage_remove_components_by_component_constructors_from_entity(self,entity:int,*component_constructors:Type[Component]) -> None:
@@ -277,7 +279,7 @@ class World():
 				staged_removal[cc] = set()
 			staged_removal[cc].add(component)
 
-			self.staged_removal_to_entity[component] = entity
+			self.staged_removal_component_to_entity[self.staged_removal_counter][component] = entity
 
 	def stage_remove_components_by_component_constructors_from_all_entities(self,*component_constructors:Type[Component]) -> None:
 		# 0.0 Check component_constructors if exists
@@ -309,7 +311,7 @@ class World():
 						staged_removal[cc] = set()
 					staged_removal[cc].add(component)
 
-					self.staged_removal_to_entity[component] = entity
+					self.staged_removal_component_to_entity[self.staged_removal_counter][component] = entity
 
 
 
@@ -429,13 +431,30 @@ class World():
 	def _get_current_staged_removal(self) -> Dict[Type[Component],Set[Component]]:
 		return self.staged_removal_components_dict[self.staged_removal_counter]
 
+	def _get_previous_staged_removal(self) -> Dict[Type[Component],Set[Component]]:
+		counter = self.staged_removal_counter
+		counter += 1
+		if counter > 1:
+			counter = 0
+		return self.staged_removal_components_dict[counter]
+	
+	def _get_current_staged_removal_component_to_entity(self) -> Dict[Component,int]:
+		return self.staged_removal_component_to_entity[self.staged_removal_counter]
+	
+	def _get_previous_staged_removal_component_to_entity(self) -> Dict[Component,int]:
+		counter = self.staged_removal_counter
+		counter += 1
+		if counter > 1:
+			counter = 0
+		return self.staged_removal_component_to_entity[counter]
+
 
 	def _remove_staged_components(self) -> None:
 
 		
 		# HUGE POTENTIAL FOR OPTIMIZATION
 
-		for (component, entity) in self.staged_removal_to_entity.items():
+		for (component, entity) in self.staged_removal_component_to_entity[self.staged_removal_counter].items():
 			component_constructor = type(component)
 			
 			# remove component. if possible remove the list storing component in enttToCC and entt in CCToEntt  
@@ -451,9 +470,9 @@ class World():
 		if self.staged_removal_counter > 1:
 			self.staged_removal_counter = 0
 
-		self.staged_removal_components_dict[self.staged_removal_counter] = {}
+		self.staged_removal_components_dict[self.staged_removal_counter].clear()
 
-		self.staged_removal_to_entity = {}
+		self.staged_removal_component_to_entity[self.staged_removal_counter].clear()
 		
 	# #########################################################
 	# 					QUERIES
@@ -473,6 +492,133 @@ class World():
 			if not component in self._get_current_staged_removal()[cc]:
 				return False
 		return True
+	
+	# def do_all_components_no_longer_exist(self,*components:Component) -> bool:
+	# 	# 0.0 Checks
+	# 	if not len(components) == len(set(components)):
+	# 		raise Exception(f"ERROR: not len(components) == len(set(component)). Info: {components}") 
+
+
+	# 	# 
+	# 	for component in components:
+	# 		cc = type(component)
+	# 		if not cc in self._get_current_staged_removal():
+	# 			return False
+	# 		if not component in self._get_current_staged_removal()[cc]:
+	# 			return False
+	# 	return True
+	
+
+	# def get_entity_and_components_that_were_deleted_the_previous_frame_and_now_no_longer_exist
+	""" 
+		INPUT (cc) -> | method | -> OUTPUT (tuple[tuple[int,set[component]]])
+	
+		It's about knowing if component OR component_constructor NO LONGER existing when they exist in the previous game loop
+	 
+		you can extract this knowledge by returning a component_list of the deleted components alongside the entity_id.
+	  
+			need to do check
+	"""
+	def check_ccs_in_deleted_view(self,*component_constructors:Type[Component]) -> bool:
+
+
+		# 0 Check
+		if not len(set(component_constructors)) == len(component_constructors):
+			raise Exception("ERROR: not len(set(component_constructors)) == len(component_constructors)")
+
+		previously_removed_component_dict = self._get_previous_staged_removal()
+
+		# 
+		for component_constructor in component_constructors:
+			if not component_constructor in previously_removed_component_dict:
+				return False
+		
+		self.DELETED_VIEW_CHECKED = True
+		return True
+
+	def deleted_view(self,*component_constructors:Type[Component]) -> Dict[int,Dict[Type[Component],Set[Component]]]:
+		if not self.DELETED_VIEW_CHECKED:
+			raise Exception("ERROR: `check_ccs_in_deleted_view` needs to have run and have returned `True` before `deleted_view` can be executed") 
+		self.DELETED_VIEW_CHECKED = False 
+
+		# 0 Check
+		if not len(set(component_constructors)) == len(component_constructors):
+			raise Exception("ERROR: not len(set(component_constructors)) == len(component_constructors)")
+
+		previously_removed_component_dict = self._get_previous_staged_removal()
+		previously_removed_component_to_entity = self._get_previous_staged_removal_component_to_entity()
+
+		# 0.1 Check 
+		for component_constructor in component_constructors:
+			if not component_constructor in previously_removed_component_dict:
+				raise Exception("ERROR: not component_constructor in previously_removed_component_dict")
+			if len(previously_removed_component_dict[component_constructor]) == 0:
+				raise Exception("ERROR: len(previously_removed_component_dict[component_constructor]) == 0")
+
+
+		# Create obj to eventually send back
+		deleted_view: Dict[int,Dict[Type[Component],Set[Component]]] = {}
+
+		# Iterate over the ccs the user wants, to get to the cc's comp instances
+		for component_constructor in component_constructors:
+			previous_component_set = previously_removed_component_dict[component_constructor]
+			for previous_component in previous_component_set:
+
+				# Get the comps' corresponding entities so we can save to `deleted_view`
+				cc = type(previous_component)
+				entity = previously_removed_component_to_entity[previous_component]
+
+				if not entity in deleted_view:
+					deleted_view[entity] = {}
+				if not cc in deleted_view[entity]:
+					deleted_view[entity][cc] = set()
+
+				deleted_view[entity][cc].add(previous_component)
+		
+		return deleted_view
+
+		
+		# ((previously_removed_component_to_entity[],)+tuple(previously_removed_component_dict[component_constructor]) for component_constructor in component_constructors)
+
+
+		# Returns a view of ((MaybeDeletedEntity, component_list),(MaybeDeletedEntity, component_list))
+
+
+	# def does_deleted_have_all_ccs(self,*component_constructor:Type[Component]) -> bool:
+	# 	# Run b4 get_deleted_by_ccs 
+		
+	# 	previously_removed_component_dict = self._get_previous_staged_removal()
+	# 	self._get_previous_staged_removal_component_to_entity()
+
+	# 	pass
+
+	# def get_deleted_by_ccs(self,*cc:Type[Component]) -> Any:
+
+	# 	self._get_previous_staged_removal
+	# 	pass
+	# 	# Run after `does_deleted_have_all_ccs`
+	# 	# Returns a view of ((MaybeDeletedEntity, component_list),(MaybeDeletedEntity, component_list))
+
+	# 	return self.staged_removal_components_dict
+		
+	# def does_entity_exist(self) -> bool:
+		# Use after using get_deleted_by_ccs??
+		
+
+	# def do_all_component_constructors_no_longer_exist(self,*component_constructors:Type[Component]) -> bool:
+	# 	# 0.0 Checks
+	# 	if not len(component_constructors) == len(set(component_constructors)):
+	# 		raise Exception(f"ERROR: not len(component_constructors) == len(set(component)). Info: {component_constructors}") 
+
+
+	# 	# 
+	# 	for component_constructor in component_constructors:
+	# 		cc = type(component)
+	# 		if not cc in self._get_current_staged_removal():
+	# 			return False
+	# 		if not component in self._get_current_staged_removal()[cc]:
+	# 			return False
+	# 	return True
 
 	def do_all_components_exist_in_newly_added(self,*components:Component) -> bool:
 		# 0.0 Checks
@@ -667,6 +813,28 @@ if __name__ == "__main__":
 	
 	""""""
 
+	# world = World()
+	# world.add_entity(Armor(1))
+	# world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
+	# world.update()
+	# world.check_ccs_in_deleted_view(Armor)
+	# print(world.deleted_view(Armor))
+	
+
+	# world = World()
+	# world.update()
+	# world.add_entity(Armor(1))
+	# world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
+	# world.update()
+	# world.check_ccs_in_deleted_view(Armor)
+	# print(world.deleted_view(Armor))
+
+	# world = World()
+	# world.update()
+	# world.add_entity(Armor(1))
+	# world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
+	# if world.check_ccs_in_deleted_view(Health):
+	# 	print(world.deleted_view(Health))
 	
 """ 
 	I NEED TO RUN A CHECK ON ALL CODE USING `not component_constructor in self.component_constructor_to_entities`
@@ -674,6 +842,8 @@ if __name__ == "__main__":
 
 """ 
 ECS Limitations/Specs:
+- Does NOT support deletion of entities
+
 - Systems can NOT be added or removed after World initialization
 - Multiple of the same system can exist
 - Multiple of the same component type can exist within the same entity. You can't add the same component instance multiple times
