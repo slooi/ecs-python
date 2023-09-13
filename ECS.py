@@ -574,7 +574,17 @@ class World():
 					deleted_view[entity][cc] = set()
 
 				deleted_view[entity][cc].add(previous_component)
-		
+
+		# Check that entity has all of the required component constructors. If entity doesn't have all of them remove it
+		entities_to_delete = []
+		for entity in deleted_view:
+			comp_dict = deleted_view[entity]
+			if not len(comp_dict) == len(component_constructors):
+				entities_to_delete.append(entity)
+
+		for entity in entities_to_delete:
+			del deleted_view[entity]
+
 		return deleted_view
 
 		
@@ -813,28 +823,6 @@ if __name__ == "__main__":
 	
 	""""""
 
-	# world = World()
-	# world.add_entity(Armor(1))
-	# world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
-	# world.update()
-	# world.check_ccs_in_deleted_view(Armor)
-	# print(world.deleted_view(Armor))
-	
-
-	# world = World()
-	# world.update()
-	# world.add_entity(Armor(1))
-	# world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
-	# world.update()
-	# world.check_ccs_in_deleted_view(Armor)
-	# print(world.deleted_view(Armor))
-
-	# world = World()
-	# world.update()
-	# world.add_entity(Armor(1))
-	# world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
-	# if world.check_ccs_in_deleted_view(Health):
-	# 	print(world.deleted_view(Health))
 	
 """ 
 	I NEED TO RUN A CHECK ON ALL CODE USING `not component_constructor in self.component_constructor_to_entities`
@@ -852,4 +840,20 @@ ECS Limitations/Specs:
 - You CANOT create entities WITHOUT components
  -> This solves this problem: You can get view of entities WITHOUT components
 - Throw error on:  world.view(Health,Position,Position) <- Can't use same component constructor multiple times
+"""
+
+
+
+""" 
+FUTURE IMPROVEMENTS TO IMPLEMENT:
+
+1) Get rid of redundancy
+if world.check_ccs_in_deleted_view(Health,Armor):
+	print(world.deleted_view(Health,Armor))
+
+- I want safety, but also convinience
+
+
+
+
 """

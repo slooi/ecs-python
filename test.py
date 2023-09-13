@@ -514,6 +514,95 @@ class TestWorld(unittest.TestCase):
 		world.update()
 		self.assertEqual(world.check_ccs_in_deleted_view(Health) == False,True)
 
+	def test_deleted_view(self):
+		
+		world = World()
+		world.add_entity(Armor(1))
+		world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
+		world.update()
+		if world.check_ccs_in_deleted_view(Armor):
+			
+			self.assertEqual(True,True)
+		else:
+			self.assertEqual(False,True)
+		
+
+		world = World()
+		world.update()
+		world.add_entity(Armor(1))
+		world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
+		world.update()
+		if  world.check_ccs_in_deleted_view(Armor):
+			
+			self.assertEqual(True,True)
+		else:
+			self.assertEqual(False,True)
+
+		world = World()
+		world.update()
+		world.add_entity(Armor(1))
+		world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
+		if world.check_ccs_in_deleted_view(Health):
+			self.assertEqual(False,True)
+			
+		else:
+			self.assertEqual(True,True)
+
+		world = World()
+		world.update()
+		world.add_entity(Armor(1),Health(13123))
+		world.stage_remove_components_by_component_constructors_from_all_entities(Armor)
+		if world.check_ccs_in_deleted_view(Health,Armor):
+			
+			self.assertEqual(False,True)
+		else:
+			self.assertEqual(True,True)
+
+		world = World()
+		world.update()
+		world.add_entity(Armor(1),Health(13123))
+		world.stage_remove_components_by_component_constructors_from_all_entities(Armor,Health)
+		if world.check_ccs_in_deleted_view(Health,Armor):
+			
+			self.assertEqual(False,True)
+		else:
+			self.assertEqual(True,True)
+
+		world = World()
+		world.update()
+		world.add_entity(Armor(1),Health(13123))
+		world.stage_remove_components_by_component_constructors_from_all_entities(Armor,Health)
+		world.update()
+		if world.check_ccs_in_deleted_view(Health,Armor):
+			
+			self.assertEqual(True,True)
+		else:
+			self.assertEqual(False,True)
+
+		world = World()
+		world.update()
+		world.add_entity(Armor(1),Health(13123))
+		world.add_entity(Armor(1))
+		world.stage_remove_components_by_component_constructors_from_all_entities(Armor,Health)
+		world.update()
+		if world.check_ccs_in_deleted_view(Health,Armor):
+			
+			self.assertEqual(True,True)
+		else:
+			self.assertEqual(False,True)
+
+		world = World()
+		world.update()
+		world.add_entity(Armor(1),Health(13123))
+		world.add_entity(Armor(1))
+		world.stage_remove_components_by_component_constructors_from_all_entities(Armor,Health)
+		world.update()
+		if world.check_ccs_in_deleted_view(Armor):
+			self.assertEqual(len(world.deleted_view(Armor))==2,True)
+			self.assertEqual(True,True)
+		else:
+			self.assertEqual(False,True)
+
 if __name__ == "__main__":
 	unittest.main()
 		# world = World()
